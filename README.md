@@ -10,7 +10,7 @@ Converts either an indivdual '.raw' file or all '.raw' files in a given director
 Download .NET 8.0 SDK and .NET Runtime 8.0 [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ###### Using Release
-1) Download and decompress the latest release for your operating system.
+1) Download and decompress the latest release 
 
 ###### Build
 1) Clone the PioneerConverter Repository
