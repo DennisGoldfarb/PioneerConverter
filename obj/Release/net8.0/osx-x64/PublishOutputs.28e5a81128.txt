@@ -1,0 +1,17 @@
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/PioneerConverter
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/PioneerConverter.deps.json
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/PioneerConverter.runtimeconfig.json
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/PioneerConverter.pdb
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.BackgroundSubtraction.xml
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.Data.xml
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.MassPrecisionEstimator.xml
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.RawFileReader.xml
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/CommandLine.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/Apache.Arrow.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.BackgroundSubtraction.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.Data.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.MassPrecisionEstimator.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/ThermoFisher.CommonCore.RawFileReader.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/OpenMcdf.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/OpenMcdf.Extensions.dll
+/Users/n.t.wamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-x64/publish/PioneerConverter.dll

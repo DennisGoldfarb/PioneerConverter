@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/n.t.wamsley/Projects/test_proj/PioneerConverter/PioneerConverter.csproj": {}
+    "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj": {}
   },
   "projects": {
-    "/Users/n.t.wamsley/Projects/test_proj/PioneerConverter/PioneerConverter.csproj": {
+    "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/n.t.wamsley/Projects/test_proj/PioneerConverter/PioneerConverter.csproj",
+        "projectUniqueName": "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj",
         "projectName": "PioneerConverter",
-        "projectPath": "/Users/n.t.wamsley/Projects/test_proj/PioneerConverter/PioneerConverter.csproj",
+        "projectPath": "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj",
         "packagesPath": "/Users/n.t.wamsley/.nuget/packages/",
-        "outputPath": "/Users/n.t.wamsley/Projects/test_proj/PioneerConverter/obj/",
+        "outputPath": "/Users/n.t.wamsley/Projects/PioneerConverter/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/n.t.wamsley/.nuget/NuGet/NuGet.Config"
@@ -59,12 +59,35 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
+              "version": "[8.0.6, 8.0.6]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Crossgen2.osx-x64",
+              "version": "[8.0.6, 8.0.6]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[8.0.6, 8.0.6]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.linux-x64",
+              "version": "[8.0.6, 8.0.6]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
           "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.302/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "linux-x64": {
+          "#import": []
         }
       }
     }
