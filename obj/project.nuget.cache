@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "YVurgWn0A+0=",
+  "success": true,
+  "projectFilePath": "/Users/n.t.wamsley/Projects/test_proj/PioneerConverter/PioneerConverter.csproj",
+  "expectedPackageFiles": [
+    "/Users/n.t.wamsley/.nuget/packages/commandlineparser/2.9.1/commandlineparser.2.9.1.nupkg.sha512"
+  ],
+  "logs": []
+}
