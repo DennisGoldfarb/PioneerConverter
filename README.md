@@ -41,6 +41,10 @@ cmd bin\Release\net8.0\PioneerConverter.exe \path\to\raw\file.raw -b 5000
 cmd bin\Release\net8.0\PioneerConverter.exe \directory\containing\raw\files\ -b 5000
 ```
 
+Alternatively, navitage to within the PioneerConverter.jl directory. From this directory run:
+```
+dotnet run path/to/raw/files
+```
 # Output 
 
  The output files have the following fields with one entry per scan in the *.raw file. 
