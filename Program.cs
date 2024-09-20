@@ -24,9 +24,9 @@ using CommandLine;
 internal static class Program
 {
     //probably remove --self-contained flag so that the .zip of fits on github
-    // dotnet publish -c Release -r win-x64 --self-contained -p:PublishReadyToRun=true
-    //dotnet publish -c Release -r osx-x64 --self-contained -p:PublishReadyToRun=true
-    //dotnet publish -c Release -r linux-x64 --self-contained -p:PublishReadyToRun=true
+    // dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=true
+    //dotnet publish -c Release -r osx-x64 -p:PublishReadyToRun=true
+    //dotnet publish -c Release -r linux-x64 -p:PublishReadyToRun=true
     //Console.WriteLine("Error opening ({0}) - {1}", rawFile.FileError.ErrorMessage, inputFile);
     class Options
     {
@@ -228,6 +228,11 @@ internal static class Program
             .DataType(FloatType.Default)
             .Nullable(true)
             .Build();
+        var collisionEnergyEvField = new Field.Builder()
+            .Name("collisionEnergyEvField")
+            .DataType(FloatType.Default)
+            .Nullable(true)
+            .Build();
         var msOrderField = new Field.Builder()
             .Name("msOrder")
             .DataType(UInt8Type.Default)
@@ -249,6 +254,7 @@ internal static class Program
                             .Field(centerMassField)
                             .Field(isolationWidthField)
                             .Field(collisionEnergyField)
+                            .Field(collisionEnergyEvField)
                             .Field(msOrderField)
                             .Build();
         // Get the start and end time from the RAW file
@@ -290,6 +296,7 @@ internal static class Program
                 var centerMassBuilder = new FloatArray.Builder();
                 var isolationWidthBuilder = new FloatArray.Builder();
                 var collisionEnergyBuilder = new FloatArray.Builder();
+                var collisionEnergyEvBuilder = new FloatArray.Builder();
                 var msOrderBuilder = new UInt8Array.Builder();
                 //Apache.ARrow.Types.StringType
                 //Pre-Allocation 
@@ -306,6 +313,7 @@ internal static class Program
                 centerMassBuilder.Reserve(batchSize);
                 isolationWidthBuilder.Reserve(batchSize);
                 collisionEnergyBuilder.Reserve(batchSize);
+                collisionEnergyEvBuilder.Reserve(batchSize);
                 msOrderBuilder.Reserve(batchSize);
                 //scanHeaderBuilder.Reserve(batchSize);
                 massValueBuilder?.Reserve((int)batch_n_peaks);
@@ -345,13 +353,34 @@ internal static class Program
                         centerMassBuilder.Append((float)scanEvent.GetMass(0));
                         isolationWidthBuilder.Append((float)scanEvent.GetIsolationWidth(0) + (float)scanEvent.GetIsolationWidthOffset(0));
                         collisionEnergyBuilder.Append((float)scanEvent.GetEnergy(0));
+                        
+                        //Extra information fields. Useful for eV collision energy values
+                        float ev = -1.0;
+                        for (int i = 0; i< trailerData.Length; i ++)
+                        {
+                            if (trailerData.Labels[i] == 'HCD Energy V:')
+                            {
+                                ev = Convert.ToSingle(trailerData.Values[i]);
+                            }
+                        }
+                        if (ev < 0)
+                        {
+                            collisionEnergyEvBuilder.AppendNull();
+                        } else
+                        {
+                            collisionEnergyEvBuilder.Append((float)ev);
+                        }
+
                     } else{
                         centerMassBuilder.AppendNull();
                         isolationWidthBuilder.AppendNull();
                         collisionEnergyBuilder.AppendNull();
+                        collisionEnergyEvBuilder.AppendNull();
                     }
 
                     msOrderBuilder.Append((byte)scanEvent.MSOrder);
+
+
 
                 }
 
@@ -370,6 +399,7 @@ internal static class Program
                 IArrowArray centerMassArray = centerMassBuilder.Build();
                 IArrowArray isolationWidthArray = isolationWidthBuilder.Build();
                 IArrowArray collisionEnergyArray = collisionEnergyBuilder.Build();
+                IArrowArray collisionEnergyEvArray = collisionEnergyEvBuilder.Build();
                 IArrowArray msOrderArray = msOrderBuilder.Build();
                 //var scanHeader = scanHeaderBuilder.Build();
                 var recordBatch = new RecordBatch(schema, new[] { 
@@ -387,6 +417,7 @@ internal static class Program
                     centerMassArray,
                     isolationWidthArray,
                     collisionEnergyArray,
+                    collisionEnergyEvArray,
                     msOrderArray }, batchEnd - batchStart + 1);
                 writer.WriteRecordBatch(recordBatch);
             }
