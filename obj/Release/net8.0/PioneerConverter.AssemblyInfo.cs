@@ -11,9 +11,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("PioneerConverter")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ae87baccd579a7e9007941ff2b3b449ccbcfd7c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+336f39e5ad3661e87d868c63c4e54d5957349b71")]
 [assembly: System.Reflection.AssemblyProductAttribute("PioneerConverter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PioneerConverter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

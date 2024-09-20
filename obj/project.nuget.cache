@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "izCqBgLMXJ4=",
+  "dgSpecHash": "dnNj63tLFS8=",
   "success": true,
   "projectFilePath": "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj",
   "expectedPackageFiles": [
-    "/Users/n.t.wamsley/.nuget/packages/commandlineparser/2.9.1/commandlineparser.2.9.1.nupkg.sha512",
-    "/Users/n.t.wamsley/.nuget/packages/microsoft.netcore.app.runtime.linux-x64/8.0.6/microsoft.netcore.app.runtime.linux-x64.8.0.6.nupkg.sha512",
-    "/Users/n.t.wamsley/.nuget/packages/microsoft.aspnetcore.app.runtime.linux-x64/8.0.6/microsoft.aspnetcore.app.runtime.linux-x64.8.0.6.nupkg.sha512",
-    "/Users/n.t.wamsley/.nuget/packages/microsoft.netcore.app.crossgen2.osx-x64/8.0.6/microsoft.netcore.app.crossgen2.osx-x64.8.0.6.nupkg.sha512",
-    "/Users/n.t.wamsley/.nuget/packages/microsoft.netcore.app.host.linux-x64/8.0.6/microsoft.netcore.app.host.linux-x64.8.0.6.nupkg.sha512"
+    "/Users/n.t.wamsley/.nuget/packages/commandlineparser/2.9.1/commandlineparser.2.9.1.nupkg.sha512"
   ],
   "logs": []
 }
