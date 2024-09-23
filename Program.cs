@@ -189,7 +189,7 @@ internal static class Program
             .Nullable(false)
             .Build();
         var packetTypeField = new Field.Builder()
-            .Name("basePeakMass")
+            .Name("packetType")
             .DataType(Int32Type.Default)
             .Nullable(false)
             .Build();
@@ -348,6 +348,7 @@ internal static class Program
 
                     //Scan Event Fields 
                     var scanEvent = rawFile.GetScanEventForScanNumber(i);
+                    var trailerData = rawFile.GetTrailerExtraInformation(i);
                     if ((byte)scanEvent.MSOrder > 1)
                     {
                         centerMassBuilder.Append((float)scanEvent.GetMass(0));
@@ -355,12 +356,13 @@ internal static class Program
                         collisionEnergyBuilder.Append((float)scanEvent.GetEnergy(0));
                         
                         //Extra information fields. Useful for eV collision energy values
-                        float ev = -1.0;
-                        for (int i = 0; i< trailerData.Length; i ++)
+                        float ev = -1.0f;
+                        for (int j = 0; j < trailerData.Length; j++)
                         {
-                            if (trailerData.Labels[i] == 'HCD Energy V:')
+                            if (trailerData.Labels[j] == "HCD Energy V:")
                             {
-                                ev = Convert.ToSingle(trailerData.Values[i]);
+                                ev = Convert.ToSingle(trailerData.Values[j]);
+                                break;
                             }
                         }
                         if (ev < 0)
