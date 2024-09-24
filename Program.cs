@@ -339,7 +339,6 @@ internal static class Program
                     var scanStats = rawFile.GetScanStatsForScanNumber(i);
                     basePeakMassBuilder.Append((float)scanStats.BasePeakMass);
                     packetTypeBuilder.Append(scanStats.PacketType);
-                    basePeakMassBuilder.Append((float)scanStats.BasePeakMass);
                     basePeakIntensityBuilder.Append((float)scanStats.BasePeakIntensity);
                     retentionTimeBuilder.Append((float)scanStats.StartTime);
                     lowMassBuilder.Append((float)scanStats.LowMass);
