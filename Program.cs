@@ -337,12 +337,12 @@ internal static class Program
 
                     //Scan Stats Fields 
                     var scanStats = rawFile.GetScanStatsForScanNumber(i);
-                    basePeakMzBuilder.Append((float)scanStats.basePeakMz);
+                    basePeakMzBuilder.Append((float)scanStats.BasePeakMass);
                     packetTypeBuilder.Append(scanStats.PacketType);
                     basePeakIntensityBuilder.Append((float)scanStats.BasePeakIntensity);
                     retentionTimeBuilder.Append((float)scanStats.StartTime);
-                    lowMzBuilder.Append((float)scanStats.lowMz);
-                    highMzBuilder.Append((float)scanStats.highMz);
+                    lowMzBuilder.Append((float)scanStats.LowMass);
+                    highMzBuilder.Append((float)scanStats.HighMass);
                     ticBuilder.Append((float)scanStats.TIC);
 
                     //Scan Event Fields 
@@ -351,7 +351,7 @@ internal static class Program
                     if ((byte)scanEvent.MSOrder > 1)
                     {
                         centerMzBuilder.Append((float)scanEvent.GetMass(0));
-                        isolationWidthMzBuilder.Append((float)scanEvent.GetisolationWidthMz(0) + (float)scanEvent.GetisolationWidthMzOffset(0));
+                        isolationWidthMzBuilder.Append((float)scanEvent.GetIsolationWidth(0) + (float)scanEvent.GetIsolationWidthOffset(0));
                         collisionEnergyBuilder.Append((float)scanEvent.GetEnergy(0));
                         
                         //Extra information fields. Useful for eV collision energy values
