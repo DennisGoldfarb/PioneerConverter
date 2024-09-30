@@ -159,12 +159,12 @@ internal static class Program
         int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
         // Build the ListArray
         var massField = new Field.Builder()
-            .Name("masses")
+            .Name("mz_array")
             .DataType(new ListType(FloatType.Default))
             .Nullable(false)
             .Build();
         var intensityField = new Field.Builder()
-            .Name("intensities")
+            .Name("intensity_array")
             .DataType(new ListType(FloatType.Default))
             .Nullable(false)
             .Build();
@@ -178,8 +178,8 @@ internal static class Program
             .DataType(Int32Type.Default)
             .Nullable(false)
             .Build();
-        var basePeakMassField = new Field.Builder()
-            .Name("basePeakMass")
+        var basePeakMzField = new Field.Builder()
+            .Name("basePeakMz")
             .DataType(FloatType.Default)
             .Nullable(false)
             .Build();
@@ -198,13 +198,13 @@ internal static class Program
             .DataType(FloatType.Default)
             .Nullable(false)
             .Build();
-        var lowMassField = new Field.Builder()
-            .Name("lowMass")
+        var lowMzField = new Field.Builder()
+            .Name("lowMz")
             .DataType(FloatType.Default)
             .Nullable(false)
             .Build();
-        var highMassField = new Field.Builder()
-            .Name("highMass")
+        var highMzField = new Field.Builder()
+            .Name("highMz")
             .DataType(FloatType.Default)
             .Nullable(false)
             .Build();
@@ -213,13 +213,13 @@ internal static class Program
             .DataType(FloatType.Default)
             .Nullable(false)
             .Build();
-        var centerMassField = new Field.Builder()
-            .Name("centerMass")
+        var centerMzField = new Field.Builder()
+            .Name("centerMz")
             .DataType(FloatType.Default)
             .Nullable(true)
             .Build();
-        var isolationWidthField = new Field.Builder()
-            .Name("isolationWidth")
+        var isolationWidthMzField = new Field.Builder()
+            .Name("isolationWidthMz")
             .DataType(FloatType.Default)
             .Nullable(true)
             .Build();
@@ -244,15 +244,15 @@ internal static class Program
                             .Field(intensityField)
                             .Field(scanHeaderField)
                             .Field(scanNumberField)
-                            .Field(basePeakMassField)
+                            .Field(basePeakMzField)
                             .Field(basePeakIntensityField)
                             .Field(packetTypeField)
                             .Field(retentionTimeField)
-                            .Field(lowMassField)
-                            .Field(highMassField)
+                            .Field(lowMzField)
+                            .Field(highMzField)
                             .Field(ticField)
-                            .Field(centerMassField)
-                            .Field(isolationWidthField)
+                            .Field(centerMzField)
+                            .Field(isolationWidthMzField)
                             .Field(collisionEnergyField)
                             .Field(collisionEnergyEvField)
                             .Field(msOrderField)
@@ -285,16 +285,16 @@ internal static class Program
                 //Scan Stats Fields 
                 var scanHeaderBuilder = new StringArray.Builder();
                 var scanNumberBuilder = new Int32Array.Builder();
-                var basePeakMassBuilder = new FloatArray.Builder();
+                var basePeakMzBuilder = new FloatArray.Builder();
                 var basePeakIntensityBuilder = new FloatArray.Builder();
                 var packetTypeBuilder = new Int32Array.Builder();
                 var retentionTimeBuilder = new FloatArray.Builder();
-                var lowMassBuilder = new FloatArray.Builder();
-                var highMassBuilder = new FloatArray.Builder();
+                var lowMzBuilder = new FloatArray.Builder();
+                var highMzBuilder = new FloatArray.Builder();
                 var ticBuilder = new FloatArray.Builder();
                 //Scan Event Fields
-                var centerMassBuilder = new FloatArray.Builder();
-                var isolationWidthBuilder = new FloatArray.Builder();
+                var centerMzBuilder = new FloatArray.Builder();
+                var isolationWidthMzBuilder = new FloatArray.Builder();
                 var collisionEnergyBuilder = new FloatArray.Builder();
                 var collisionEnergyEvBuilder = new FloatArray.Builder();
                 var msOrderBuilder = new UInt8Array.Builder();
@@ -303,15 +303,15 @@ internal static class Program
                 massListBuilder.Reserve(batchSize);
                 intensityListBuilder.Reserve(batchSize);
                 scanNumberBuilder.Reserve(batchSize);
-                basePeakMassBuilder.Reserve(batchSize);
+                basePeakMzBuilder.Reserve(batchSize);
                 basePeakIntensityBuilder.Reserve(batchSize);
                 packetTypeBuilder.Reserve(batchSize);
                 retentionTimeBuilder.Reserve(batchSize);
-                lowMassBuilder.Reserve(batchSize);
-                highMassBuilder.Reserve(batchSize);
+                lowMzBuilder.Reserve(batchSize);
+                highMzBuilder.Reserve(batchSize);
                 ticBuilder.Reserve(batchSize);
-                centerMassBuilder.Reserve(batchSize);
-                isolationWidthBuilder.Reserve(batchSize);
+                centerMzBuilder.Reserve(batchSize);
+                isolationWidthMzBuilder.Reserve(batchSize);
                 collisionEnergyBuilder.Reserve(batchSize);
                 collisionEnergyEvBuilder.Reserve(batchSize);
                 msOrderBuilder.Reserve(batchSize);
@@ -337,12 +337,12 @@ internal static class Program
 
                     //Scan Stats Fields 
                     var scanStats = rawFile.GetScanStatsForScanNumber(i);
-                    basePeakMassBuilder.Append((float)scanStats.BasePeakMass);
+                    basePeakMzBuilder.Append((float)scanStats.basePeakMz);
                     packetTypeBuilder.Append(scanStats.PacketType);
                     basePeakIntensityBuilder.Append((float)scanStats.BasePeakIntensity);
                     retentionTimeBuilder.Append((float)scanStats.StartTime);
-                    lowMassBuilder.Append((float)scanStats.LowMass);
-                    highMassBuilder.Append((float)scanStats.HighMass);
+                    lowMzBuilder.Append((float)scanStats.lowMz);
+                    highMzBuilder.Append((float)scanStats.highMz);
                     ticBuilder.Append((float)scanStats.TIC);
 
                     //Scan Event Fields 
@@ -350,8 +350,8 @@ internal static class Program
                     var trailerData = rawFile.GetTrailerExtraInformation(i);
                     if ((byte)scanEvent.MSOrder > 1)
                     {
-                        centerMassBuilder.Append((float)scanEvent.GetMass(0));
-                        isolationWidthBuilder.Append((float)scanEvent.GetIsolationWidth(0) + (float)scanEvent.GetIsolationWidthOffset(0));
+                        centerMzBuilder.Append((float)scanEvent.GetMass(0));
+                        isolationWidthMzBuilder.Append((float)scanEvent.GetisolationWidthMz(0) + (float)scanEvent.GetisolationWidthMzOffset(0));
                         collisionEnergyBuilder.Append((float)scanEvent.GetEnergy(0));
                         
                         //Extra information fields. Useful for eV collision energy values
@@ -373,8 +373,8 @@ internal static class Program
                         }
 
                     } else{
-                        centerMassBuilder.AppendNull();
-                        isolationWidthBuilder.AppendNull();
+                        centerMzBuilder.AppendNull();
+                        isolationWidthMzBuilder.AppendNull();
                         collisionEnergyBuilder.AppendNull();
                         collisionEnergyEvBuilder.AppendNull();
                     }
@@ -390,15 +390,15 @@ internal static class Program
                 var intensityArray = intensityListBuilder.Build();
                 IArrowArray scanHeaderArray = scanHeaderBuilder.Build();
                 IArrowArray scanNumberArray = scanNumberBuilder.Build();
-                IArrowArray basePeakMassArray = basePeakMassBuilder.Build();
+                IArrowArray basePeakMzArray = basePeakMzBuilder.Build();
                 IArrowArray basePeakIntensityArray = basePeakIntensityBuilder.Build();
                 IArrowArray packetTypeArray = packetTypeBuilder.Build();
                 IArrowArray retentionTimeArray = retentionTimeBuilder.Build();
-                IArrowArray lowMassArray = lowMassBuilder.Build();
-                IArrowArray highMassArray = highMassBuilder.Build();
+                IArrowArray lowMzArray = lowMzBuilder.Build();
+                IArrowArray highMzArray = highMzBuilder.Build();
                 IArrowArray ticArray = ticBuilder.Build();
-                IArrowArray centerMassArray = centerMassBuilder.Build();
-                IArrowArray isolationWidthArray = isolationWidthBuilder.Build();
+                IArrowArray centerMzArray = centerMzBuilder.Build();
+                IArrowArray isolationWidthMzArray = isolationWidthMzBuilder.Build();
                 IArrowArray collisionEnergyArray = collisionEnergyBuilder.Build();
                 IArrowArray collisionEnergyEvArray = collisionEnergyEvBuilder.Build();
                 IArrowArray msOrderArray = msOrderBuilder.Build();
@@ -408,15 +408,15 @@ internal static class Program
                     intensityArray, 
                     scanHeaderArray,
                     scanNumberArray,
-                    basePeakMassArray,
+                    basePeakMzArray,
                     basePeakIntensityArray,
                     packetTypeArray,
                     retentionTimeArray,
-                    lowMassArray,
-                    highMassArray,
+                    lowMzArray,
+                    highMzArray,
                     ticArray,
-                    centerMassArray,
-                    isolationWidthArray,
+                    centerMzArray,
+                    isolationWidthMzArray,
                     collisionEnergyArray,
                     collisionEnergyEvArray,
                     msOrderArray }, batchEnd - batchStart + 1);
