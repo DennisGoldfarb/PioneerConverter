@@ -1,70 +1,33 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {
-      "CommandLineParser/2.9.1": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/CommandLine.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/CommandLine.dll": {
-            "related": ".xml"
-          }
-        }
-      }
-    }
+    "net8.0": {},
+    "net8.0/win-x64": {}
   },
-  "libraries": {
-    "CommandLineParser/2.9.1": {
-      "sha512": "OE0sl1/sQ37bjVsPKKtwQlWDgqaxWgtme3xZz7JssWUzg5JpMIyHgCTY9MVMxOg48fJ1AgGT3tgdH5m/kQ5xhA==",
-      "type": "package",
-      "path": "commandlineparser/2.9.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "CommandLine20.png",
-        "License.md",
-        "README.md",
-        "commandlineparser.2.9.1.nupkg.sha512",
-        "commandlineparser.nuspec",
-        "lib/net40/CommandLine.dll",
-        "lib/net40/CommandLine.xml",
-        "lib/net45/CommandLine.dll",
-        "lib/net45/CommandLine.xml",
-        "lib/net461/CommandLine.dll",
-        "lib/net461/CommandLine.xml",
-        "lib/netstandard2.0/CommandLine.dll",
-        "lib/netstandard2.0/CommandLine.xml"
-      ]
-    }
-  },
+  "libraries": {},
   "projectFileDependencyGroups": {
-    "net8.0": [
-      "CommandLineParser >= 2.9.1"
-    ]
+    "net8.0": []
   },
   "packageFolders": {
-    "/Users/n.t.wamsley/.nuget/packages/": {}
+    "/Users/nathanwamsley/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj",
+      "projectUniqueName": "/Users/nathanwamsley/Projects/PioneerConverter/PioneerConverter.csproj",
       "projectName": "PioneerConverter",
-      "projectPath": "/Users/n.t.wamsley/Projects/PioneerConverter/PioneerConverter.csproj",
-      "packagesPath": "/Users/n.t.wamsley/.nuget/packages/",
-      "outputPath": "/Users/n.t.wamsley/Projects/PioneerConverter/obj/",
+      "projectPath": "/Users/nathanwamsley/Projects/PioneerConverter/PioneerConverter.csproj",
+      "packagesPath": "/Users/nathanwamsley/.nuget/packages/",
+      "outputPath": "/Users/nathanwamsley/Projects/PioneerConverter/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/n.t.wamsley/.nuget/NuGet/NuGet.Config"
+        "/Users/nathanwamsley/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "/opt/homebrew/Cellar/dotnet/9.0.101/libexec/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -82,17 +45,12 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
         "targetAlias": "net8.0",
-        "dependencies": {
-          "CommandLineParser": {
-            "target": "Package",
-            "version": "[2.9.1, )"
-          }
-        },
         "imports": [
           "net461",
           "net462",
@@ -104,12 +62,43 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Crossgen2.osx-arm64",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.11, 8.0.11]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "version": "[8.0.11, 8.0.11]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.302/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.101/libexec/sdk/9.0.101/PortableRuntimeIdentifierGraph.json"
+      }
+    },
+    "runtimes": {
+      "win-x64": {
+        "#import": []
       }
     }
   }

@@ -1,10 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿// All using statements must come first
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.ExceptionServices;
-
 
 using ThermoFisher.CommonCore.BackgroundSubtraction;
 using ThermoFisher.CommonCore.Data;
@@ -14,82 +13,114 @@ using ThermoFisher.CommonCore.Data.Interfaces;
 using ThermoFisher.CommonCore.MassPrecisionEstimator;
 using ThermoFisher.CommonCore.RawFileReader;
 
-
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Memory;
 using Apache.Arrow.Types;
 
-using CommandLine;
-internal static class Program
+// Then class declarations
+public class Options
 {
-    //probably remove --self-contained flag so that the .zip of fits on github
-    // dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=true
-    //dotnet publish -c Release -r osx-x64 -p:PublishReadyToRun=true
-    //dotnet publish -c Release -r linux-x64 -p:PublishReadyToRun=true
-    //Console.WriteLine("Error opening ({0}) - {1}", rawFile.FileError.ErrorMessage, inputFile);
-    class Options
+    public string RawPath { get; set; } = string.Empty;
+    public int BatchSize { get; set; } = 10000;
+    public int Threads { get; set; } = 2;
+
+    public static Options ParseArguments(string[] args)
     {
-        [Value(0, Required = true)]
-        public string? raw_path { get; set; }
+        var options = new Options();
+        
+        if (args.Length == 0)
+        {
+            ShowHelp();
+            return options;
+        }
 
-        [Option('b', "batch-size", Default = 10000, HelpText = "Process this many scans in each batch...")]
-        public int batchSize { get; set; }
+        options.RawPath = args[0];
 
-        [Option('n', "threads", Default = 2, HelpText = "Maximum number of threads to use..")]
-        public int threads { get; set; }
+        for (int i = 1; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "-b":
+                case "--batch-size":
+                    if (i + 1 < args.Length && int.TryParse(args[++i], out int batchSize))
+                    {
+                        options.BatchSize = batchSize;
+                    }
+                    break;
+                case "-n":
+                case "--threads":
+                    if (i + 1 < args.Length && int.TryParse(args[++i], out int threads))
+                    {
+                        options.Threads = threads;
+                    }
+                    break;
+                case "-h":
+                case "--help":
+                    ShowHelp();
+                    return options;
+            }
+        }
 
-
+        return options;
     }
 
+    private static void ShowHelp()
+    {
+        Console.WriteLine("Usage: PioneerConverter RAW_PATH [options]");
+        Console.WriteLine();
+        Console.WriteLine("Arguments:");
+        Console.WriteLine("  RAW_PATH                   Path to .raw file or directory containing .raw files");
+        Console.WriteLine();
+        Console.WriteLine("Options:");
+        Console.WriteLine("  -b, --batch-size <size>    Process this many scans in each batch (default: 10000)");
+        Console.WriteLine("  -n, --threads <number>     Maximum number of threads to use (default: 2)");
+        Console.WriteLine("  -h, --help                 Show help information");
+    }
+}
 
-
+internal static class Program
+{
     public static void Main(string[] args)
     {
+        var options = Options.ParseArguments(args);
 
+        if (string.IsNullOrEmpty(options.RawPath))
+        {
+            return;
+        }
 
-        //Argument placeholders
-        string? raw_path = "";
-        int batchSize = 0;
-        int n_threads = 0;
+        string[] file_paths = GetFilePaths(options.RawPath);
+        if (file_paths.Length == 0)
+        {
+            Console.WriteLine("No .raw files found to process");
+            return;
+        }
 
-        //Convert an individual .raw file or all .raw files in a directory
-        Parser.Default.ParseArguments<Options>(args)
-              .WithParsed<Options>(opts =>
-              {
-                  // Assign the parsed values to variables
-                  raw_path = opts.raw_path;
-                  batchSize = opts.batchSize;
-                  n_threads = opts.threads;
-              }).WithNotParsed<Options>(opts =>
-              {
-                    raw_path = args[0];
-                    batchSize = 10000;
-                    n_threads = 2;
-              });
-        
-        string[] file_paths = GetFilePaths(raw_path);
         string? input_dir = Path.GetDirectoryName(file_paths[0]);
         if (input_dir == null)
-        {   return; }
+        {   
+            Console.WriteLine("Invalid input directory");
+            return; 
+        }
 
         string output_dir = buildOutputDir(input_dir);
         string[] output_paths = getOutputPaths(output_dir, file_paths);
 
-        //Write .arrow file in small batches of 10,000 scans to avoid problems with memory consumption. 
-        //const int batchSize = 10000; // Adjust this based on your memory constraints and performance needs
         ParallelOptions parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = n_threads // Limit to 4 threads/cores
+            MaxDegreeOfParallelism = options.Threads
         };
-        //Convert .raw files 
-        Console.WriteLine("batchSize: {0}", batchSize);
-        Console.WriteLine("n_threads: {0}", n_threads);
+
+        Console.WriteLine($"BatchSize: {options.BatchSize}");
+        Console.WriteLine($"Threads: {options.Threads}");
+
         Parallel.ForEach(Enumerable.Range(0, file_paths.Length), parallelOptions, fileIndex =>
         {
-            ProcessFile(file_paths[fileIndex], output_paths[fileIndex], batchSize);
-        });        
+            ProcessFile(file_paths[fileIndex], output_paths[fileIndex], options.BatchSize);
+        });
     }
+
     public static string[] GetFilePaths(string raw_path)
     {
         //Initialize File Paths
@@ -111,12 +142,14 @@ internal static class Program
         }
         return file_paths;
     }
+
     public static string buildOutputDir(string input_dir)
     {
         string output_dir = Path.Combine(input_dir, "arrow_out");
         Directory.CreateDirectory(output_dir);
         return output_dir;
     }
+
     public static string[] getOutputPaths(string output_dir, string[] file_paths)
     {
         //Make output paths by altering the file extension and directory 
