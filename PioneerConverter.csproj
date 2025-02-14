@@ -5,30 +5,48 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- Add rpath to look in the same directory -->
+    <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
   </PropertyGroup>
 
-<ItemGroup>
+  <ItemGroup>
     <Reference Include="ThermoFisher.CommonCore.BackgroundSubtraction">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.BackgroundSubtraction.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="ThermoFisher.CommonCore.Data">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.Data.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="ThermoFisher.CommonCore.MassPrecisionEstimator">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.MassPrecisionEstimator.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="ThermoFisher.CommonCore.RawFileReader">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.RawFileReader.dll</HintPath>
-  </Reference>
-      <Reference Include="Apache.Arrow">
-      <HintPath>Libs\Apache.Arrow.dll</HintPath>
+      <Private>true</Private>
     </Reference>
-</ItemGroup>
+    <Reference Include="Apache.Arrow">
+      <HintPath>Libs\Apache.Arrow.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
 
-<ItemGroup>
-  <PackageReference Include="CommandLineParser" Version="2.9.1" />
-</ItemGroup>
+  <!-- Copy all necessary files -->
+  <Target Name="CopyAllFiles" BeforeTargets="Build">
+    <ItemGroup>
+      <LibFiles Include="Libs\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 
-
+  <!-- Also copy for publish -->
+  <Target Name="CopyAllFilesOnPublish" BeforeTargets="Publish">
+    <ItemGroup>
+      <LibFiles Include="Libs\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 
 </Project>

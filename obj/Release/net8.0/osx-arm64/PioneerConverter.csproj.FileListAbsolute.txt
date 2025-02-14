@@ -3,7 +3,6 @@
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/PioneerConverter.runtimeconfig.json
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/PioneerConverter.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/PioneerConverter.pdb
-/Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/CommandLine.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/Microsoft.CSharp.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/Microsoft.VisualBasic.Core.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/osx-arm64/Microsoft.VisualBasic.dll

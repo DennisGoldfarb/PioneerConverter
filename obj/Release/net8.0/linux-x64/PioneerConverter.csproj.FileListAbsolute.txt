@@ -32,7 +32,6 @@
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/PioneerConverter.runtimeconfig.json
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/PioneerConverter.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/PioneerConverter.pdb
-/Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/CommandLine.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/Microsoft.CSharp.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/Microsoft.VisualBasic.Core.dll
 /Users/nathanwamsley/Projects/PioneerConverter/bin/Release/net8.0/linux-x64/Microsoft.VisualBasic.dll

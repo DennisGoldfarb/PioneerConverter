@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PioneerConverter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d70af8012dd57ae62bcd3af0616a320bdaf2ac4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58cb24ead3389bdfd256441a74b5b8379866dca2")]
 [assembly: System.Reflection.AssemblyProductAttribute("PioneerConverter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PioneerConverter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
