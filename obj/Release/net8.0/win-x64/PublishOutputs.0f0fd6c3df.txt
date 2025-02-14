@@ -1,0 +1,4 @@
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-win-x64/PioneerConverter.pdb
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-win-x64/ThermoFisher.CommonCore.BackgroundSubtraction.xml
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-win-x64/ThermoFisher.CommonCore.MassPrecisionEstimator.xml
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-win-x64/PioneerConverter.exe

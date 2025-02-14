@@ -1,0 +1,6 @@
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-osx-x64/PioneerConverter.pdb
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-osx-x64/ThermoFisher.CommonCore.BackgroundSubtraction.xml
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-osx-x64/ThermoFisher.CommonCore.Data.xml
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-osx-x64/ThermoFisher.CommonCore.MassPrecisionEstimator.xml
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-osx-x64/ThermoFisher.CommonCore.RawFileReader.xml
+/Users/nathanwamsley/Projects/PioneerConverter/dist/PioneerConverter-osx-x64/PioneerConverter
