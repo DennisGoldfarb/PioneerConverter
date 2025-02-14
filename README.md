@@ -76,25 +76,25 @@ Convert all files in a directory:
      --self-contained true \
      -o dist/PioneerConverter-osx-arm64
    ```
-
 ## Output Format
 
 The output files have the following fields with one entry per scan in the *.raw file:
 
-| Name | Type | Description |
-|------|------|-------------|
-| masses | Float32[] | List of masses for peaks in the centroided spectra in ascending order |
-| intensities | Float32[] | List of intensities for peaks in the centroided spectra |
-| scanHeader | String | Scan Header (e.g., "FTMS + c NSI Full ms [375.0000-1000.0000]") |
-| scanNumber | Int32 | Scan index in the .raw file |
-| basePeakMz | Float32 | Mass of the most intense peak |
-| basePeakIntensity | Float32 | Intensity of the most intense peak |
-| packetType | Int32 | Type of spectrum packet |
-| retentionTime | Float32 | Retention time in minutes |
-| lowMz | Float32 | First mass in the scan |
-| highMz | Float32 | Last mass in the scan |
-| TIC | Float32 | Total Ion Current (summed intensity) |
-| centerMz | Float32? | Precursor MZ for MSn scans (null for MS1) |
-| isolationWidth | Float32? | Width of quadrupole isolation window (null for MS1) |
-| collisionEnergy | Float32? | NCE collision energy (null for MS1) |
-| msOrder | UInt8 | MS level (1 for MS1, 2 for MS2, etc.) |
+| Column Name | Data Type | Description |
+|------------|-----------|-------------|
+| mz_array | Vector{Union{Missing, Float32}} | List of masses for peaks in the centroided spectra |
+| intensity_array | Vector{Union{Missing, Float32}} | List of intensities for peaks in the centroided spectra |
+| scanHeader | String | A description of the scan |
+| scanNumber | Int32 | Scan index of i'th scan in the .*raw file in order of occurrence |
+| basePeakMz | Float32 | m/z of the base peak |
+| basePeakIntensity | Float32 | Intensity of the base peak |
+| packetType | Int32 | |
+| retentionTime | Float32 | Retention time of the scan |
+| lowMz | Float32 | Lowest m/z in the scan range |
+| highMz | Float32 | Highest m/z in the scan range |
+| TIC | Float32 | Total ion current |
+| centerMz | Union{Float32, Missing} | For an MSn scan, the m/z center of the quadrupole isolation window |
+| isolationWidthMz | Union{Float32, Missing} | For an MSn scan, the m/z width of the quadrupole isolation window |
+| collisionEnergyField | Union{Float32, Missing} | Normalized collision energy |
+| collisionEnergyEvField | Union{Float32, Missing} | Collision energy (eV) |
+| msOrder | UInt8 | The n for an MSn scan |
