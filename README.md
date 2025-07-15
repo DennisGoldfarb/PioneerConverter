@@ -74,8 +74,42 @@ Convert all files in a directory:
      -p:PublishSingleFile=false \
      -p:PublishTrimmed=false \
      --self-contained true \
-     -o dist/PioneerConverter-osx-arm64
-   ```
+   -o dist/PioneerConverter-osx-arm64
+  ```
+
+## Building Installers
+
+Installer scripts are provided for Windows, macOS and Linux under the
+`installers/` directory.  These scripts package the binaries produced by
+`build.sh` into native installers and place a wrapper on the system `PATH`.
+
+### Windows
+
+Use [Inno Setup](https://jrsoftware.org/isinfo.php) to compile
+`installers/windows/PioneerConverter.iss`.  The resulting
+`PioneerConverter-Setup.exe` installs the application under
+`Program Files` and can optionally add the directory to your `PATH`.
+
+### macOS
+
+Run `installers/macos/build_pkg.sh` on a Mac with Xcode command line tools.
+It produces `PioneerConverter.pkg` which installs files to
+`/usr/local/PioneerConverter` and symlinks the `pioneerconverter` command to
+`/usr/local/bin`.
+
+### Linux
+
+Run `installers/linux/build_deb.sh` on a Debian-based system to create a
+`PioneerConverter_1.0.0_amd64.deb` package.  Installing this package places the
+wrapper script in `/usr/local/bin` and the application files under
+`/usr/local/PioneerConverter`.
+
+### Automated Builds
+
+Run `./build_installers.sh` to build the binaries and create the installer
+for the current platform.  A GitHub Actions workflow (`build.yml`) executes
+this script on Windows, macOS and Linux whenever a version tag is pushed and
+publishes the resulting installer files as build artifacts.
 ## Output Format
 
 The output files have the following fields with one entry per scan in the *.raw file:

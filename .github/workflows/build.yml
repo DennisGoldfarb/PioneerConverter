@@ -1,0 +1,39 @@
+name: Build Installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Inno Setup
+        if: matrix.os == 'windows-latest'
+        run: choco install innosetup -y
+
+      - name: Build installers
+        run: ./build_installers.sh
+        shell: bash
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: installer-${{ matrix.os }}
+          path: |
+            **/*.deb
+            **/*.pkg
+            **/*.exe
+
