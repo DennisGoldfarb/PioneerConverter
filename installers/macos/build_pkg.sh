@@ -24,7 +24,7 @@ pkgbuild --root "$PKGROOT" \
 
 if [[ -n "$CODESIGN_IDENTITY" ]]; then
   echo "Codesigning binaries"
-  codesign --force --options runtime --timestamp \
+  codesign --verbose=4 --force --options runtime --timestamp \
     --sign "$CODESIGN_IDENTITY" \
     "$PKGROOT/usr/local/$APPNAME/PioneerConverter/PioneerConverter"
 fi
