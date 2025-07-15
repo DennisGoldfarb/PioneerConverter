@@ -1,0 +1,20 @@
+# Ignore build output directories
+bin/
+obj/
+
+# Distribution packages
+/dist/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code workspace or user-specific files
+.vscode/
+
+# Installer build directories
+installers/linux/debian/
+installers/macos/pkgroot/
+
+# Logs
+*.log
