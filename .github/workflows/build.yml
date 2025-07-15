@@ -51,6 +51,9 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+          # confirm identity
+          security find-identity -v -p codesigning
+
       #- uses: apple-actions/import-codesign-certs@v2
       #  if: matrix.os == 'macos-latest'
       #  with:
