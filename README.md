@@ -69,7 +69,7 @@ Convert all files in a directory:
 
    Or build for a specific platform:
    ```bash
-   dotnet publish -c Release \
+   dotnet publish PioneerConverter.csproj -c Release \
      -r osx-arm64 \
      -p:PublishSingleFile=false \
      -p:PublishTrimmed=false \

@@ -12,7 +12,7 @@ mkdir -p dist
 
 # Build for macOS ARM64 (M1/M2)
 print_step "Building for macOS ARM64"
-dotnet publish -c Release \
+dotnet publish PioneerConverter.csproj -c Release \
   -r osx-arm64 \
   -p:PublishSingleFile=false \
   -p:PublishTrimmed=false \
@@ -21,7 +21,7 @@ dotnet publish -c Release \
 
 # Build for macOS x64 (Intel)
 print_step "Building for macOS x64"
-dotnet publish -c Release \
+dotnet publish PioneerConverter.csproj -c Release \
   -r osx-x64 \
   -p:PublishSingleFile=false \
   -p:PublishTrimmed=false \
@@ -30,7 +30,7 @@ dotnet publish -c Release \
 
 # Build for Linux x64
 print_step "Building for Linux x64"
-dotnet publish -c Release \
+dotnet publish PioneerConverter.csproj -c Release \
   -r linux-x64 \
   -p:PublishSingleFile=false \
   -p:PublishTrimmed=false \
@@ -39,7 +39,7 @@ dotnet publish -c Release \
 
 # Build for Windows x64
 print_step "Building for Windows x64"
-dotnet publish -c Release \
+dotnet publish PioneerConverter.csproj -c Release \
   -r win-x64 \
   -p:PublishSingleFile=false \
   -p:PublishTrimmed=false \
