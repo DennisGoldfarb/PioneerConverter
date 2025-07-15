@@ -17,17 +17,17 @@ cat <<'WRAP' > "$PKGROOT/usr/local/bin/pioneerconverter"
 WRAP
 chmod +x "$PKGROOT/usr/local/bin/pioneerconverter"
 
-pkgbuild --root "$PKGROOT" \
-  --identifier "com.example.pioneerconverter" \
-  --version "$VERSION" \
-  --install-location "/" "${APPNAME}-unsigned.pkg"
-
 if [[ -n "$CODESIGN_IDENTITY" ]]; then
   echo "Codesigning binaries"
   codesign --verbose=4 --force --options runtime --timestamp \
     --sign "$CODESIGN_IDENTITY" \
     "$PKGROOT/usr/local/$APPNAME/PioneerConverter"
 fi
+
+pkgbuild --root "$PKGROOT" \
+  --identifier "com.example.pioneerconverter" \
+  --version "$VERSION" \
+  --install-location "/" "${APPNAME}-unsigned.pkg"
 
 if [[ -n "$PKG_SIGN_IDENTITY" ]]; then
   echo "Signing package"
