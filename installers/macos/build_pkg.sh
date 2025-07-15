@@ -23,14 +23,14 @@ pkgbuild --root "$PKGROOT" \
   --install-location "/" "${APPNAME}-unsigned.pkg"
 
 if [[ -n "$CODESIGN_IDENTITY" ]]; then
-  echo "Codesigning binaries with $CODESIGN_IDENTITY"
+  echo "Codesigning binaries"
   codesign --force --options runtime --timestamp \
     --sign "$CODESIGN_IDENTITY" \
     "$PKGROOT/usr/local/$APPNAME/PioneerConverter/PioneerConverter"
 fi
 
 if [[ -n "$PKG_SIGN_IDENTITY" ]]; then
-  echo "Signing package with $PKG_SIGN_IDENTITY"
+  echo "Signing package"
   productsign --sign "$PKG_SIGN_IDENTITY" \
     "${APPNAME}-unsigned.pkg" "$APPNAME.pkg"
   rm "${APPNAME}-unsigned.pkg"
