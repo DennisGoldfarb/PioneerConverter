@@ -13,7 +13,7 @@ cp -R ../../dist/PioneerConverter-osx-x64/* "$PKGROOT/usr/local/$APPNAME/"
 
 cat <<'WRAP' > "$PKGROOT/usr/local/bin/pioneerconverter"
 #!/bin/bash
-/usr/local/$APPNAME/PioneerConverter/PioneerConverter "$@"
+/usr/local/$APPNAME/PioneerConverter "$@"
 WRAP
 chmod +x "$PKGROOT/usr/local/bin/pioneerconverter"
 
@@ -26,7 +26,7 @@ if [[ -n "$CODESIGN_IDENTITY" ]]; then
   echo "Codesigning binaries"
   codesign --verbose=4 --force --options runtime --timestamp \
     --sign "$CODESIGN_IDENTITY" \
-    "$PKGROOT/usr/local/$APPNAME/PioneerConverter/PioneerConverter"
+    "$PKGROOT/usr/local/$APPNAME/PioneerConverter"
 fi
 
 if [[ -n "$PKG_SIGN_IDENTITY" ]]; then
