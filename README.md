@@ -103,6 +103,13 @@ Run `installers/linux/build_deb.sh` on a Debian-based system to create a
 `PioneerConverter_1.0.0_amd64.deb` package.  Installing this package places the
 wrapper script in `/usr/local/bin` and the application files under
 `/usr/local/PioneerConverter`.
+
+### Automated Builds
+
+Run `./build_installers.sh` to build the binaries and create the installer
+for the current platform.  A GitHub Actions workflow (`build.yml`) executes
+this script on Windows, macOS and Linux whenever a version tag is pushed and
+publishes the resulting installer files as build artifacts.
 ## Output Format
 
 The output files have the following fields with one entry per scan in the *.raw file:
