@@ -20,6 +20,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERT_P12 }}
+          p12-password: ${{ secrets.MACOS_CERT_PASSWORD }}
+
       - name: Install Inno Setup
         if: matrix.os == 'windows-latest'
         run: choco install innosetup -y
