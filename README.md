@@ -93,6 +93,8 @@ Use [Inno Setup](https://jrsoftware.org/isinfo.php) to compile
 ### macOS
 
 Run `installers/macos/build_pkg.sh` on a Mac with Xcode command line tools.
+If the environment variables `CODESIGN_IDENTITY` and `PKG_SIGN_IDENTITY` are
+set, the script will codesign the binary and sign the resulting installer.
 It produces `PioneerConverter.pkg` which installs files to
 `/usr/local/PioneerConverter` and symlinks the `pioneerconverter` command to
 `/usr/local/bin`.
