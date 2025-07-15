@@ -93,6 +93,20 @@ jobs:
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           PKG_SIGN_IDENTITY: ${{ secrets.PKG_SIGN_IDENTITY }}
 
+      - name: Notarize macOS package
+        if: matrix.os == 'macos-latest'
+        env:
+          AC_USERNAME: ${{ secrets.NOTARIZE_APPLE_ID }}
+          AC_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
+          TEAM_ID: ${{ secrets.NOTARIZE_TEAM_ID }}
+        run: |
+          xcrun notarytool store-credentials notary-profile \
+            --apple-id "$AC_USERNAME" \
+            --team-id "$TEAM_ID" \
+            --password "$AC_PASSWORD"
+          xcrun notarytool submit installers/macos/PioneerConverter.pkg \
+            --keychain-profile notary-profile --wait
+
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
