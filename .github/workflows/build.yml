@@ -27,6 +27,9 @@ jobs:
       - name: Build installers
         run: ./build_installers.sh
         shell: bash
+        env:
+          CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
+          PKG_SIGN_IDENTITY: ${{ secrets.PKG_SIGN_IDENTITY }}
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
