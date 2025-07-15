@@ -8,11 +8,15 @@ OS="$(uname)"
 case "$OS" in
     Linux*)
         echo "Creating Linux .deb package"
-        installers/linux/build_deb.sh
+        pushd installers/linux > /dev/null
+        ./build_deb.sh
+        popd > /dev/null
         ;;
     Darwin*)
         echo "Creating macOS .pkg installer"
-        installers/macos/build_pkg.sh
+        pushd installers/macos > /dev/null
+        ./build_pkg.sh
+        popd > /dev/null
         ;;
     MINGW*|MSYS*|CYGWIN*|Windows_NT)
         echo "Creating Windows installer"
