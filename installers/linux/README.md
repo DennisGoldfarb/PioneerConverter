@@ -10,4 +10,4 @@ Run the script on a Debian-based system:
 ./build_deb.sh
 ```
 
-The resulting `PioneerConverter_1.0.0_amd64.deb` can be installed with `dpkg -i`.
+The resulting `PioneerConverter-linux_1.0.0_amd64.deb` can be installed with `dpkg -i`.
