@@ -1,5 +1,7 @@
 #define MyAppName "PioneerConverter"
+#ifndef MyAppVersion
 #define MyAppVersion "1.0.0"
+#endif
 #define MyAppExeName "PioneerConverter.exe"
 
 [Setup]
@@ -8,7 +10,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputBaseFilename=PioneerConverter-win-Setup
+OutputBaseFilename=PioneerConverter-win-{#MyAppVersion}-Setup
 Compression=lzma
 SolidCompression=yes
 
