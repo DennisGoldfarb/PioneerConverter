@@ -1,6 +1,6 @@
 # Linux Installer
 
-The `build_deb.sh` script creates a Debian package that installs the binaries under `/usr/local/PioneerConverter` and places a wrapper script `pioneerconverter` in `/usr/local/bin`.
+The `build_deb.sh` script creates a Debian package that installs the binaries under `/usr/local/PioneerConverter` and places a wrapper script `PioneerConverter` in `/usr/local/bin`.
 
 ## Building
 

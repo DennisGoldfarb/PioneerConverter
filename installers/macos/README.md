@@ -1,7 +1,7 @@
 # macOS Installer
 
 The `build_pkg.sh` script generates a `.pkg` installer using `pkgbuild`.
-The installer places files under `/usr/local/PioneerConverter` and installs a wrapper script `pioneerconverter` into `/usr/local/bin` so the command is on your `PATH`.
+The installer places files under `/usr/local/PioneerConverter` and installs a wrapper script `PioneerConverter` into `/usr/local/bin` so the command is on your `PATH`.
 
 ## Building
 

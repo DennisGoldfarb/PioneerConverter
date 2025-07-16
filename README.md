@@ -7,21 +7,47 @@ Converts either an individual '.raw' file or all '.raw' files in a given directo
 
 ## Installation
 
-1. Download the appropriate version for your system:
-   - macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64.zip`
-   - macOS Intel (x64): `PioneerConverter-osx-x64.zip`
-   - Linux (x64): `PioneerConverter-linux-x64.zip`
-   - Windows (x64): `PioneerConverter-win-x64.zip`
+Platform specific installers and zipped binaries are available from the
+project releases.  The installers place the application in a standard
+location and put a `PioneerConverter` wrapper script on your `PATH` so
+the command is available system&#8209;wide.
 
-2. Extract the zip file:
-   ```bash
-   unzip PioneerConverter-*-*.zip
-   ```
+### Using the installers
 
-3. Make the executable runnable (macOS/Linux only):
-   ```bash
-   chmod +x PioneerConverter-*/PioneerConverter
-   ```
+- **Windows**: run `PioneerConverter-Setup.exe`.  The program is
+  installed under *Program&nbsp;Files* and a `PioneerConverter` command
+  is optionally added to your `PATH`.
+- **macOS**: open `PioneerConverter.pkg`.  This installs the files in
+  `/usr/local/PioneerConverter` and links the `PioneerConverter` command
+  to `/usr/local/bin`.
+- **Linux**: install the `.deb` package, e.g.
+  ```bash
+  sudo dpkg -i PioneerConverter_*.deb
+  ```
+  This also installs the wrapper command to `/usr/local/bin`.
+
+After installation you can simply run:
+
+```bash
+PioneerConverter <input path>
+```
+
+### Using the zipped binaries
+
+If you prefer a portable copy download one of the zip files:
+
+- macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64.zip`
+- macOS Intel (x64): `PioneerConverter-osx-x64.zip`
+- Linux (x64): `PioneerConverter-linux-x64.zip`
+- Windows (x64): `PioneerConverter-win-x64.zip`
+
+Extract the archive and run the `PioneerConverter` executable from the
+extracted directory.  On macOS and Linux you may need to make the file
+executable first:
+
+```bash
+chmod +x PioneerConverter-*/PioneerConverter
+```
 
 ## Usage
 
@@ -72,44 +98,6 @@ Convert all files in a directory:
    ./build.sh macos    # or linux / windows
    ```
 
-## Building Installers
-
-Installer scripts are provided for Windows, macOS and Linux under the
-`installers/` directory.  These scripts package the binaries produced by
-`build.sh` into native installers and place a wrapper on the system `PATH`.
-
-### Windows
-
-Use [Inno Setup](https://jrsoftware.org/isinfo.php) to compile
-`installers/windows/PioneerConverter.iss`.  The resulting
-`PioneerConverter-Setup.exe` installs the application under
-`Program Files` and can optionally add the directory to your `PATH`.
-
-### macOS
-
-Run `installers/macos/build_pkg.sh` on a Mac with Xcode command line tools.
-If the environment variables `CODESIGN_IDENTITY` and `PKG_SIGN_IDENTITY` are
-set, the script will codesign the binary using the entitlements in
-`installers/macos/entitlements.plist` and sign the resulting installer.
-This entitlements file is required for running the signed binaries.
-The script produces `PioneerConverter.pkg` which installs files to
-`/usr/local/PioneerConverter` and symlinks the `pioneerconverter` command to
-`/usr/local/bin`.
-
-### Linux
-
-Run `installers/linux/build_deb.sh` on a Debian-based system to create a
-`PioneerConverter_1.0.0_amd64.deb` package.  Installing this package places the
-wrapper script in `/usr/local/bin` and the application files under
-`/usr/local/PioneerConverter`.
-
-### Automated Builds
-
-Run `./build_installers.sh` to build the binaries and create the installer
-for the current platform.  A GitHub Actions workflow (`build.yml`) executes
-this script on Windows, macOS and Linux whenever a version tag is pushed and
-publishes the installer packages to the project packages section and uploads
-the zipped binaries for each platform as release assets.
 ## Output Format
 
 The output files have the following fields with one entry per scan in the *.raw file:
