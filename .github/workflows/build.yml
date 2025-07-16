@@ -209,7 +209,7 @@ jobs:
           tag="${GITHUB_REF#refs/tags/}"
           for file in artifacts/binary-*/*; do
             name="BINARY-$(basename "$file")"
-            gh release upload "$tag" "$file" --clobber --name "$name"
+            gh release upload "$tag" "$file#$name" --clobber
           done
 
       - name: Upload installers to release
@@ -219,6 +219,6 @@ jobs:
           tag="${GITHUB_REF#refs/tags/}"
           for file in artifacts/installer-*/*; do
             name="INSTALLER-$(basename "$file")"
-            gh release upload "$tag" "$file" --clobber --name "$name"
+            gh release upload "$tag" "$file#$name" --clobber
           done
 
