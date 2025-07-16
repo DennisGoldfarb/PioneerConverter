@@ -67,15 +67,10 @@ Convert all files in a directory:
    ./build.sh
    ```
 
-   Or build for a specific platform:
+   Or build only for your current platform:
    ```bash
-   dotnet publish PioneerConverter.csproj -c Release \
-     -r osx-arm64 \
-     -p:PublishSingleFile=false \
-     -p:PublishTrimmed=false \
-     --self-contained true \
-   -o dist/PioneerConverter-osx-arm64
-  ```
+   ./build.sh macos    # or linux / windows
+   ```
 
 ## Building Installers
 
@@ -113,7 +108,8 @@ wrapper script in `/usr/local/bin` and the application files under
 Run `./build_installers.sh` to build the binaries and create the installer
 for the current platform.  A GitHub Actions workflow (`build.yml`) executes
 this script on Windows, macOS and Linux whenever a version tag is pushed and
-publishes the resulting installer files as build artifacts.
+publishes the installer packages to the project packages section and uploads
+the zipped binaries for each platform as release assets.
 ## Output Format
 
 The output files have the following fields with one entry per scan in the *.raw file:
