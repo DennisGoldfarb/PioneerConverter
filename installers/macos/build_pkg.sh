@@ -38,6 +38,7 @@ if [[ -n "$CODESIGN_IDENTITY" ]]; then
   while IFS= read -r -d '' file; do
       if file "$file" | grep -q 'Mach-O'; then
         codesign --verbose=4 --force --options runtime --timestamp \
+          --entitlements "$(dirname "$0")/entitlements.plist" \
           --sign "$CODESIGN_IDENTITY" "$file"
       fi
     done < <(find "$PKGROOT/usr/local/$APPNAME" -type f -print0)
