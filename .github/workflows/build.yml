@@ -134,4 +134,5 @@ jobs:
             **/*.deb
             **/*.pkg
             **/*.exe
+            dist/*.zip
 
