@@ -104,7 +104,9 @@ jobs:
             --apple-id "$AC_USERNAME" \
             --team-id "$TEAM_ID" \
             --password "$AC_PASSWORD"
-          for file in installers/macos/PioneerConverter-*.pkg dist/PioneerConverter-osx-*.zip; do
+          for file in installers/macos/PioneerConverter-*.pkg \
+                     dist/PioneerConverter-osx-arm64/PioneerConverter \
+                     dist/PioneerConverter-osx-x64/PioneerConverter; do
             echo "Submitting $file"
             result=$(xcrun notarytool submit "$file" \
               --keychain-profile notary-profile --wait --output-format json)
@@ -125,11 +127,16 @@ jobs:
             xcrun stapler staple "$pkg"
           done
 
+          for bin in dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-x64/PioneerConverter; do
+            if [ -f "$bin" ]; then
+              xcrun stapler staple "$bin"
+            fi
+          done
+
           for zip in dist/PioneerConverter-osx-*.zip; do
             arch=$(echo "$zip" | sed -E 's/.*osx-([^-]+)-.*\.zip/\1/')
             dir="dist/PioneerConverter-osx-$arch"
             if [ -f "$dir/PioneerConverter" ]; then
-              xcrun stapler staple "$dir/PioneerConverter"
               rm -f "$zip"
               (cd dist && zip -r "$(basename "$zip")" "$(basename "$dir")")
             fi
