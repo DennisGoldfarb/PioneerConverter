@@ -87,7 +87,16 @@ esac
 print_step "Creating zip archives"
 cd dist
 for dir in "${BUILT[@]}"; do
-    zip -r "$dir.zip" "$dir"
+    if command -v zip >/dev/null 2>&1; then
+        zip -r "$dir.zip" "$dir"
+    elif command -v 7z >/dev/null 2>&1; then
+        7z a "$dir.zip" "$dir" >/dev/null
+    elif command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -Command "Compress-Archive -Path '$dir' -DestinationPath '$dir.zip'" >/dev/null
+    else
+        echo "No zip utility found" >&2
+        exit 1
+    fi
 done
 cd ..
 
