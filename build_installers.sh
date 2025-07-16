@@ -37,7 +37,12 @@ case "$TARGET" in
         ;;
     windows)
         echo "Creating Windows installer"
-        iscc installers/windows/PioneerConverter.iss
+        pushd installers/windows > /dev/null
+        iscc PioneerConverter.iss
+        if [ -f Output/PioneerConverter-Setup.exe ]; then
+            mv Output/PioneerConverter-Setup.exe PioneerConverter-Setup.exe
+        fi
+        popd > /dev/null
         ;;
 esac
 
