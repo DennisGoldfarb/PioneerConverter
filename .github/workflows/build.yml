@@ -153,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: installer-windows
-          path: installers/windows/PioneerConverter-win-Setup.exe
+          path: installers/windows/PioneerConverter-win-*-Setup.exe
 
       - name: Upload binary (mac arm64)
         if: matrix.os == 'macos-latest'
@@ -174,14 +174,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: installer-mac-arm64
-          path: installers/macos/PioneerConverter-arm64.pkg
+          path: installers/macos/PioneerConverter-arm64-*.pkg
 
       - name: Upload installer (mac x64)
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: installer-mac-x64
-          path: installers/macos/PioneerConverter-x64.pkg
+          path: installers/macos/PioneerConverter-x64-*.pkg
 
   release:
     runs-on: ubuntu-latest
