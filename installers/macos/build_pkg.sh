@@ -4,16 +4,25 @@ set -e
 APPNAME="PioneerConverter"
 VERSION="1.0.0"
 PKGROOT="pkgroot"
+ARCH="$(uname -m)"
+
+if [[ "$ARCH" == "arm64" ]]; then
+  DIST="../../dist/${APPNAME}-osx-arm64"
+  PKGFILE="${APPNAME}-arm64.pkg"
+else
+  DIST="../../dist/${APPNAME}-osx-x64"
+  PKGFILE="${APPNAME}-x64.pkg"
+fi
 
 rm -rf "$PKGROOT"
 mkdir -p "$PKGROOT/usr/local/$APPNAME"
 mkdir -p "$PKGROOT/usr/local/bin"
 
-cp -R ../../dist/PioneerConverter-osx-x64/* "$PKGROOT/usr/local/$APPNAME/"
+cp -R "$DIST"/* "$PKGROOT/usr/local/$APPNAME/"
 
 cat <<WRAP > "$PKGROOT/usr/local/bin/pioneerconverter"
 #!/bin/bash
-/usr/local/$APPNAME/PioneerConverter "\$@"
+/usr/local/$APPNAME/PioneerConverter/PioneerConverter "\$@"
 WRAP
 chmod +x "$PKGROOT/usr/local/bin/pioneerconverter"
 
@@ -27,18 +36,20 @@ if [[ -n "$CODESIGN_IDENTITY" ]]; then
     done < <(find "$PKGROOT/usr/local/$APPNAME" -type f -print0)
 fi
 
+UNSIGNED="${PKGFILE%.pkg}-unsigned.pkg"
+
 pkgbuild --root "$PKGROOT" \
   --identifier "com.example.pioneerconverter" \
   --version "$VERSION" \
-  --install-location "/" "${APPNAME}-unsigned.pkg"
+  --install-location "/" "$UNSIGNED"
 
 if [[ -n "$PKG_SIGN_IDENTITY" ]]; then
   echo "Signing package"
   productsign --sign "$PKG_SIGN_IDENTITY" \
-    "${APPNAME}-unsigned.pkg" "$APPNAME.pkg"
-  rm "${APPNAME}-unsigned.pkg"
+    "$UNSIGNED" "$PKGFILE"
+  rm "$UNSIGNED"
 else
-  mv "${APPNAME}-unsigned.pkg" "$APPNAME.pkg"
+  mv "$UNSIGNED" "$PKGFILE"
 fi
 
-echo "Package created: $APPNAME.pkg"
+echo "Package created: $PKGFILE"
