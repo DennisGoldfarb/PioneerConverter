@@ -2,114 +2,55 @@
   <img src="assets/Converter.svg" alt="PioneerConverter Logo" width="256" height="256"/>
 </p>
 
-### Cross Platform Conversion of Thermo Raw Files to Pioneer Compatible Apache Arrow Tables
+# PioneerConverter
 
-Uses [Thermo RawFileReader .NET Assemblies](https://github.com/thermofisherlsms/RawFileReader) to convert Thermo '.raw' files to the [Apache Arrow](https://arrow.apache.org/) format. 
-Converts either an individual '.raw' file or all '.raw' files in a given directory. Output tables are ready to search with [Pioneer](https://github.com/nwamsley1/Pioneer.jl).
+Convert Thermo `.raw` files into [Apache Arrow](https://arrow.apache.org/) tables ready for [Pioneer](https://github.com/nwamsley1/Pioneer.jl). The tool uses Thermo's [RawFileReader](https://github.com/thermofisherlsms/RawFileReader) and runs on Windows, macOS and Linux.
 
-## Installation
+## Install
 
-Platform specific installers and zipped binaries are available from the
-project releases.  The installers place the application in a standard
-location and put a `PioneerConverter` wrapper script on your `PATH` so
-the command is available system&#8209;wide.
-
-### Using the installers
-
-- **Windows**: run `PioneerConverter-win-x.x.x-Setup.exe`.  The program is
-  installed under *Program&nbsp;Files* and a `PioneerConverter` command
-  is optionally added to your `PATH`.
-- **macOS**: open `PioneerConverter-<arch>-x.x.x.pkg`.  This installs the files in
-  `/usr/local/PioneerConverter` and links the `PioneerConverter` command
-  to `/usr/local/bin`.
-- **Linux**: install the `.deb` package, e.g.
-  ```bash
-  sudo dpkg -i PioneerConverter-linux_x.x.x_amd64.deb
-  ```
-  This also installs the wrapper command to `/usr/local/bin`.
-
-After installation you can simply run:
+Grab an installer or zipped binary from the project releases. Installers place a `PioneerConverter` command on your `PATH`. Zip archives can be extracted anywhere; on macOS and Linux run `chmod +x PioneerConverter` before executing.
 
 ```bash
 PioneerConverter <input path>
 ```
 
-### Using the zipped binaries
-
-If you prefer a portable copy download one of the zip files:
-
-- macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64-x.x.x.zip`
-- macOS Intel (x64): `PioneerConverter-osx-x64-x.x.x.zip`
-- Linux (x64): `PioneerConverter-linux-x64-x.x.x.zip`
-- Windows (x64): `PioneerConverter-win-x64-x.x.x.zip`
-
-Extract the archive and run the `PioneerConverter` executable from the
-extracted directory.  On macOS and Linux you may need to make the file
-executable first:
-
-```bash
-chmod +x PioneerConverter-*/PioneerConverter
-```
-
 ## Usage
 
-The input can be either a path to a single .raw file or a directory containing .raw files. In the latter case, all .raw files in the directory are converted. The output files are written into a new directory 'arrow_out' created within the input directory.
+Provide a single `.raw` file or a directory containing them. Converted Arrow tables are written to `arrow_out` inside the input directory.
 
-Options:
-- `-b, --batch-size`: Number of scans to convert per batch (default: 10000)
-- `-n, --threads`: Number of threads to use (default: 2)
-- `-h, --help`: Show help information
-
-### Examples
-
-Convert a single file:
 ```bash
-PioneerConverter path/to/raw/file.raw
+# convert a single file
+PioneerConverter path/to/file.raw
 
-# With options
-PioneerConverter path/to/raw/file.raw -b 5000 -n 4
+# convert a directory with options
+PioneerConverter path/to/dir -b 5000 -n 4
 ```
 
-Convert all files in a directory:
-```bash
-PioneerConverter path/to/directory/with/raw/files/
+Options
+- `-b, --batch-size`  number of scans per batch (default: 10000)
+- `-n, --threads`     threads to use (default: 2)
+- `-h, --help`        show help
 
-# With options
-PioneerConverter path/to/directory/with/raw/files/ -b 5000 -n 4
+## Build from source
+
+1. Install [.NET&nbsp;8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
+2. Clone this repository and run:
+
+```bash
+chmod +x build.sh
+./build.sh          # or ./build.sh macos|linux|windows
 ```
 
-## Building from Source
+## Output format
 
-1. Prerequisites:
-   - Install [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/PioneerConverter.git
-   cd PioneerConverter
-   ```
-
-3. Build for all platforms:
-   ```bash
-   chmod +x build.sh
-   ./build.sh
-   ```
-
-   Or build only for your current platform:
-   ```bash
-   ./build.sh macos    # or linux / windows
-   ```
-
-## Output Format
-
-The output files have the following fields with one entry per scan in the *.raw file:
+Each row in the Arrow table corresponds to a scan in the `.raw` file:
 
 | Column Name | Data Type | Description |
 |------------|-----------|-------------|
 | mz_array | Vector{Union{Missing, Float32}} | List of masses for peaks in the centroided spectra |
 | intensity_array | Vector{Union{Missing, Float32}} | List of intensities for peaks in the centroided spectra |
 | scanHeader | String | A description of the scan |
-| scanNumber | Int32 | Scan index of i'th scan in the .*raw file in order of occurrence |
+| scanNumber | Int32 | Scan index of i'th scan in the `.raw` file |
 | basePeakMz | Float32 | m/z of the base peak |
 | basePeakIntensity | Float32 | Intensity of the base peak |
 | packetType | Int32 | |
