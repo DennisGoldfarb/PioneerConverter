@@ -13,11 +13,11 @@ mkdir -p "$BUILD/usr/local/bin"
 
 cp -R ../../dist/PioneerConverter-linux-x64/* "$BUILD/usr/local/$APPNAME/"
 
-cat <<'WRAP' > "$BUILD/usr/local/bin/pioneerconverter"
+cat <<'WRAP' > "$BUILD/usr/local/bin/PioneerConverter"
 #!/bin/bash
 /usr/local/$APPNAME/PioneerConverter "$@"
 WRAP
-chmod +x "$BUILD/usr/local/bin/pioneerconverter"
+chmod +x "$BUILD/usr/local/bin/PioneerConverter"
 
 cat <<CTRL > "$BUILD/DEBIAN/control"
 Package: pioneerconverter

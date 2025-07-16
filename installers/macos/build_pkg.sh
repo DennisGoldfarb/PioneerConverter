@@ -27,11 +27,11 @@ mkdir -p "$PKGROOT/usr/local/bin"
 
 cp -R "$DIST"/* "$PKGROOT/usr/local/$APPNAME/"
 
-cat <<WRAP > "$PKGROOT/usr/local/bin/pioneerconverter"
+cat <<WRAP > "$PKGROOT/usr/local/bin/PioneerConverter"
 #!/bin/bash
 /usr/local/$APPNAME/PioneerConverter "\$@"
 WRAP
-chmod +x "$PKGROOT/usr/local/bin/pioneerconverter"
+chmod +x "$PKGROOT/usr/local/bin/PioneerConverter"
 
 if [[ -n "$CODESIGN_IDENTITY" ]]; then
   echo "Codesigning binaries"
