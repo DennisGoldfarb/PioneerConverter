@@ -64,18 +64,18 @@ Options:
 
 Convert a single file:
 ```bash
-./PioneerConverter path/to/raw/file.raw
+PioneerConverter path/to/raw/file.raw
 
 # With options
-./PioneerConverter path/to/raw/file.raw -b 5000 -n 4
+PioneerConverter path/to/raw/file.raw -b 5000 -n 4
 ```
 
 Convert all files in a directory:
 ```bash
-./PioneerConverter path/to/directory/with/raw/files/
+PioneerConverter path/to/directory/with/raw/files/
 
 # With options
-./PioneerConverter path/to/directory/with/raw/files/ -b 5000 -n 4
+PioneerConverter path/to/directory/with/raw/files/ -b 5000 -n 4
 ```
 
 ## Building from Source
