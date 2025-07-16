@@ -6,7 +6,7 @@ The `PioneerConverter.iss` script can be built with [Inno Setup](https://jrsoftw
 
 1. Install Inno Setup.
 2. Open `PioneerConverter.iss` in the Inno Setup Compiler or run
-   `iscc /DMyAppVersion=<version> PioneerConverter.iss` from the command line,
+   `iscc "/DMyAppVersion=<version>" "PioneerConverter.iss"` from the command line,
    replacing `<version>` with the release tag.
 3. The output is `PioneerConverter-win-<version>-Setup.exe`.
 
