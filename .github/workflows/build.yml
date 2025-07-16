@@ -87,7 +87,12 @@ jobs:
         run: choco install innosetup -y
 
       - name: Build installers
-        run: ./build_installers.sh
+        run: |
+          if [ "${{ matrix.os }}" = "macos-latest" ]; then
+            SKIP_MAC_ZIPS=1 ./build_installers.sh
+          else
+            ./build_installers.sh
+          fi
         shell: bash
         env:
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
@@ -155,19 +160,6 @@ jobs:
           name: installer-windows
           path: installers/windows/PioneerConverter-win-*-Setup.exe
 
-      - name: Upload binary (mac arm64)
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: binary-mac-arm64
-          path: dist/PioneerConverter-osx-arm64-*.zip
-
-      - name: Upload binary (mac x64)
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: binary-mac-x64
-          path: dist/PioneerConverter-osx-x64-*.zip
 
       - name: Upload installer (mac arm64)
         if: matrix.os == 'macos-latest'
