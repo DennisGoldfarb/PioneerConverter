@@ -67,15 +67,10 @@ Convert all files in a directory:
    ./build.sh
    ```
 
-   Or build for a specific platform:
+   Or build only for your current platform:
    ```bash
-   dotnet publish PioneerConverter.csproj -c Release \
-     -r osx-arm64 \
-     -p:PublishSingleFile=false \
-     -p:PublishTrimmed=false \
-     --self-contained true \
-   -o dist/PioneerConverter-osx-arm64
-  ```
+   ./build.sh macos    # or linux / windows
+   ```
 
 ## Building Installers
 
