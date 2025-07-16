@@ -14,18 +14,15 @@ the command is available system&#8209;wide.
 
 ### Using the installers
 
-- **Windows**: run `PioneerConverter-win-1.2.3-Setup.exe` (replace `1.2.3`
-  with the release tag).  The program is
+- **Windows**: run `PioneerConverter-win-x.x.x-Setup.exe`.  The program is
   installed under *Program&nbsp;Files* and a `PioneerConverter` command
   is optionally added to your `PATH`.
-- **macOS**: open `PioneerConverter-<arch>-1.2.3.pkg` (replace `1.2.3` with the
-  release tag).  This installs the files in
+- **macOS**: open `PioneerConverter-<arch>-x.x.x.pkg`.  This installs the files in
   `/usr/local/PioneerConverter` and links the `PioneerConverter` command
   to `/usr/local/bin`.
 - **Linux**: install the `.deb` package, e.g.
   ```bash
-  sudo dpkg -i PioneerConverter-linux_1.2.3_amd64.deb
-  # replace 1.2.3 with the release tag
+  sudo dpkg -i PioneerConverter-linux_x.x.x_amd64.deb
   ```
   This also installs the wrapper command to `/usr/local/bin`.
 
@@ -39,15 +36,10 @@ PioneerConverter <input path>
 
 If you prefer a portable copy download one of the zip files:
 
-- macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64-1.2.3.zip`
-- macOS Intel (x64): `PioneerConverter-osx-x64-1.2.3.zip`
-- Linux (x64): `PioneerConverter-linux-x64-1.2.3.zip`
-- Windows (x64): `PioneerConverter-win-x64-1.2.3.zip`
-
-Source code archives are also provided as
-`PioneerConverter-1.2.3-source.zip` and
-`PioneerConverter-1.2.3-source.tar.gz`.
-(Replace `1.2.3` with the release tag.)
+- macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64-x.x.x.zip`
+- macOS Intel (x64): `PioneerConverter-osx-x64-x.x.x.zip`
+- Linux (x64): `PioneerConverter-linux-x64-x.x.x.zip`
+- Windows (x64): `PioneerConverter-win-x64-x.x.x.zip`
 
 Extract the archive and run the `PioneerConverter` executable from the
 extracted directory.  On macOS and Linux you may need to make the file
