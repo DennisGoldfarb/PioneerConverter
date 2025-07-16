@@ -1,8 +1,7 @@
-# PioneerConverter
-
 <p align="center">
   <img src="assets/Converter.svg" alt="PioneerConverter Logo" width="256" height="256"/>
 </p>
+
 ### Cross Platform Conversion of Thermo Raw Files to Pioneer Compatible Apache Arrow Tables
 
 Uses [Thermo RawFileReader .NET Assemblies](https://github.com/thermofisherlsms/RawFileReader) to convert Thermo '.raw' files to the [Apache Arrow](https://arrow.apache.org/) format. 
