@@ -45,7 +45,7 @@ case "$TARGET" in
     windows)
         echo "Creating Windows installer"
         pushd installers/windows > /dev/null
-        iscc "/DMyAppVersion=$VERSION" "PioneerConverter.iss"
+        iscc PioneerConverter.iss /DMyAppVersion=$VERSION
         if [ -f Output/PioneerConverter-win-${VERSION}-Setup.exe ]; then
             mv "Output/PioneerConverter-win-${VERSION}-Setup.exe" "PioneerConverter-win-${VERSION}-Setup.exe"
         elif [ -f Output/PioneerConverter-win-Setup.exe ]; then
