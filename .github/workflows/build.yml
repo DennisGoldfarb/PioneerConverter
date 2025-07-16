@@ -105,8 +105,8 @@ jobs:
             --team-id "$TEAM_ID" \
             --password "$AC_PASSWORD"
           for file in installers/macos/PioneerConverter-*.pkg \
-                     dist/PioneerConverter-osx-arm64-*.zip \
-                     dist/PioneerConverter-osx-x64-*.zip; do
+                     dist/PioneerConverter-osx-arm64/PioneerConverter \
+                     dist/PioneerConverter-osx-x64/PioneerConverter; do
             echo "Submitting $file"
             result=$(xcrun notarytool submit "$file" \
               --keychain-profile notary-profile --wait --output-format json)
