@@ -4,15 +4,22 @@ set -e
 APPNAME="PioneerConverter"
 VERSION="1.0.0"
 PKGROOT="pkgroot"
-ARCH="$(uname -m)"
+PKG_ARCH="${PKG_ARCH:-$(uname -m)}"
 
-if [[ "$ARCH" == "arm64" ]]; then
-  DIST="../../dist/${APPNAME}-osx-arm64"
-  PKGFILE="${APPNAME}-arm64.pkg"
-else
-  DIST="../../dist/${APPNAME}-osx-x64"
-  PKGFILE="${APPNAME}-x64.pkg"
-fi
+case "$PKG_ARCH" in
+  arm64|aarch64)
+    DIST="../../dist/${APPNAME}-osx-arm64"
+    PKGFILE="${APPNAME}-arm64.pkg"
+    ;;
+  x64|x86_64)
+    DIST="../../dist/${APPNAME}-osx-x64"
+    PKGFILE="${APPNAME}-x64.pkg"
+    ;;
+  *)
+    echo "Unsupported architecture: $PKG_ARCH" >&2
+    exit 1
+    ;;
+esac
 
 rm -rf "$PKGROOT"
 mkdir -p "$PKGROOT/usr/local/$APPNAME"
