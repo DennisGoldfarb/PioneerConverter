@@ -29,6 +29,6 @@ Maintainer: Unknown
 Description: PioneerConverter command line tool
 CTRL
 
-dpkg-deb --build "$BUILD" "${APPNAME}_${VERSION}_${ARCH}.deb"
+dpkg-deb --build "$BUILD" "${APPNAME}-linux_${VERSION}_${ARCH}.deb"
 
-echo "Package created: ${APPNAME}_${VERSION}_${ARCH}.deb"
+echo "Package created: ${APPNAME}-linux_${VERSION}_${ARCH}.deb"

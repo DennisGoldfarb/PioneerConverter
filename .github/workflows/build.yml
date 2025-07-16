@@ -139,7 +139,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: installer-linux
-          path: installers/linux/PioneerConverter_*_amd64.deb
+          path: installers/linux/PioneerConverter-linux_*_amd64.deb
 
       - name: Upload binary (windows)
         if: matrix.os == 'windows-latest'
@@ -153,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: installer-windows
-          path: installers/windows/PioneerConverter-Setup.exe
+          path: installers/windows/PioneerConverter-win-Setup.exe
 
       - name: Upload binary (mac arm64)
         if: matrix.os == 'macos-latest'

@@ -8,7 +8,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputBaseFilename=PioneerConverter-Setup
+OutputBaseFilename=PioneerConverter-win-Setup
 Compression=lzma
 SolidCompression=yes
 

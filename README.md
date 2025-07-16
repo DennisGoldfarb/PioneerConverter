@@ -14,7 +14,7 @@ the command is available system&#8209;wide.
 
 ### Using the installers
 
-- **Windows**: run `PioneerConverter-Setup.exe`.  The program is
+- **Windows**: run `PioneerConverter-win-Setup.exe`.  The program is
   installed under *Program&nbsp;Files* and a `PioneerConverter` command
   is optionally added to your `PATH`.
 - **macOS**: open `PioneerConverter.pkg`.  This installs the files in
@@ -22,7 +22,7 @@ the command is available system&#8209;wide.
   to `/usr/local/bin`.
 - **Linux**: install the `.deb` package, e.g.
   ```bash
-  sudo dpkg -i PioneerConverter_*.deb
+  sudo dpkg -i PioneerConverter-linux_*.deb
   ```
   This also installs the wrapper command to `/usr/local/bin`.
 
