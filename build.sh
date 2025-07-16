@@ -37,6 +37,15 @@ build_macos() {
 
     chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
     chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
+
+    if [[ -n "$CODESIGN_IDENTITY" ]]; then
+        print_step "Codesigning macOS binaries"
+        for file in dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-x64/PioneerConverter; do
+            codesign --verbose=4 --force --options runtime --timestamp \
+                --entitlements installers/macos/entitlements.plist \
+                --sign "$CODESIGN_IDENTITY" "$file"
+        done
+    fi
 }
 
 build_linux() {

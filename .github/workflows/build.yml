@@ -93,7 +93,7 @@ jobs:
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           PKG_SIGN_IDENTITY: ${{ secrets.PKG_SIGN_IDENTITY }}
 
-      - name: Notarize macOS package
+      - name: Notarize macOS artifacts
         if: matrix.os == 'macos-latest'
         env:
           AC_USERNAME: ${{ secrets.NOTARIZE_APPLE_ID }}
@@ -104,15 +104,15 @@ jobs:
             --apple-id "$AC_USERNAME" \
             --team-id "$TEAM_ID" \
             --password "$AC_PASSWORD"
-          for pkg in installers/macos/PioneerConverter-*.pkg; do
-            echo "Submitting $pkg"
-            result=$(xcrun notarytool submit "$pkg" \
+          for file in installers/macos/PioneerConverter-*.pkg dist/PioneerConverter-osx-*.zip; do
+            echo "Submitting $file"
+            result=$(xcrun notarytool submit "$file" \
               --keychain-profile notary-profile --wait --output-format json)
             echo "$result"
             status=$(echo "$result" | grep -o '"status" *: *"[^"]*"' | head -n1 | sed 's/.*"status" *: *"\([^"]*\)"/\1/')
             subid=$(echo "$result" | grep -o '"id" *: *"[^"]*"' | head -n1 | sed 's/.*"id" *: *"\([^"]*\)"/\1/')
             if [ "$status" != "Accepted" ]; then
-              echo "Notarization failed for $pkg with status $status"
+              echo "Notarization failed for $file with status $status"
               xcrun notarytool log "$subid" --keychain-profile notary-profile
               exit 1
             fi
@@ -121,8 +121,8 @@ jobs:
       - name: Staple notarization ticket
         if: matrix.os == 'macos-latest'
         run: |
-          for pkg in installers/macos/PioneerConverter-*.pkg; do
-            xcrun stapler staple "$pkg"
+          for file in installers/macos/PioneerConverter-*.pkg dist/PioneerConverter-osx-*.zip; do
+            xcrun stapler staple "$file"
           done
           
 
