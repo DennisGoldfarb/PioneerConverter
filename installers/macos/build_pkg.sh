@@ -11,7 +11,7 @@ mkdir -p "$PKGROOT/usr/local/bin"
 
 cp -R ../../dist/PioneerConverter-osx-x64/* "$PKGROOT/usr/local/$APPNAME/"
 
-cat <<'WRAP' > "$PKGROOT/usr/local/bin/pioneerconverter"
+cat <<WRAP > "$PKGROOT/usr/local/bin/pioneerconverter"
 #!/bin/bash
 /usr/local/$APPNAME/PioneerConverter "$@"
 WRAP
