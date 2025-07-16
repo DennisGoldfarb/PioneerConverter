@@ -13,9 +13,10 @@ case "$OS" in
         popd > /dev/null
         ;;
     Darwin*)
-        echo "Creating macOS .pkg installer"
+        echo "Creating macOS .pkg installers"
         pushd installers/macos > /dev/null
-        ./build_pkg.sh
+        PKG_ARCH=arm64 ./build_pkg.sh
+        PKG_ARCH=x64 ./build_pkg.sh
         popd > /dev/null
         ;;
     MINGW*|MSYS*|CYGWIN*|Windows_NT)
