@@ -104,8 +104,21 @@ jobs:
             --apple-id "$AC_USERNAME" \
             --team-id "$TEAM_ID" \
             --password "$AC_PASSWORD"
-          xcrun notarytool submit installers/macos/PioneerConverter.pkg \
-            --keychain-profile notary-profile --wait
+          result=$(xcrun notarytool submit installers/macos/PioneerConverter.pkg \
+            --keychain-profile notary-profile --wait --output-format json)
+          echo "$result"
+          status=$(echo "$result" | grep -o '"status" *: *"[^"]*"' | head -n1 | sed 's/.*"status" *: *"\([^"]*\)"/\1/')
+          subid=$(echo "$result" | grep -o '"id" *: *"[^"]*"' | head -n1 | sed 's/.*"id" *: *"\([^"]*\)"/\1/')
+          if [ "$status" != "Accepted" ]; then
+            echo "Notarization failed with status $status"
+            xcrun notarytool log "$subid" --keychain-profile notary-profile
+            exit 1
+          fi
+            
+      - name: Staple notarization ticket
+        if: matrix.os == 'macos-latest'
+        run: xcrun stapler staple installers/macos/PioneerConverter.pkg
+          
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
