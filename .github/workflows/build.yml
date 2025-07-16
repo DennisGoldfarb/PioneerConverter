@@ -132,7 +132,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-linux-x64
-          path: dist/PioneerConverter-linux-x64.zip
+          path: dist/PioneerConverter-linux-x64-*.zip
 
       - name: Upload installer (linux)
         if: matrix.os == 'ubuntu-latest'
@@ -146,7 +146,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-win-x64
-          path: dist/PioneerConverter-win-x64.zip
+          path: dist/PioneerConverter-win-x64-*.zip
 
       - name: Upload installer (windows)
         if: matrix.os == 'windows-latest'
@@ -160,14 +160,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-mac-arm64
-          path: dist/PioneerConverter-osx-arm64.zip
+          path: dist/PioneerConverter-osx-arm64-*.zip
 
       - name: Upload binary (mac x64)
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: binary-mac-x64
-          path: dist/PioneerConverter-osx-x64.zip
+          path: dist/PioneerConverter-osx-x64-*.zip
 
       - name: Upload installer (mac arm64)
         if: matrix.os == 'macos-latest'
@@ -193,6 +193,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+
+      - name: Create source archives
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          git archive --format=zip --output "PioneerConverter-${tag}-source.zip" "$tag"
+          git archive --format=tar.gz --output "PioneerConverter-${tag}-source.tar.gz" "$tag"
 
       - name: Create GitHub release
         env:
@@ -231,4 +237,14 @@ jobs:
             name="Installer-$base"
             gh release upload "$tag" "$file#$name" --clobber
           done
+
+      - name: Upload sources to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release upload "$tag" \
+            "PioneerConverter-${tag}-source.zip#Source-PioneerConverter-${tag}.zip" \
+            "PioneerConverter-${tag}-source.tar.gz#Source-PioneerConverter-${tag}.tar.gz" \
+            --clobber
 

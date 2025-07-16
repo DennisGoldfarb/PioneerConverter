@@ -10,6 +10,11 @@ print_step() {
 
 TARGET_OS="${1:-all}"
 
+# Determine version from env or latest Git tag
+VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
+VERSION="${VERSION#v}"
+VERSION="$(echo "$VERSION" | tr -d '\n')"
+
 # Create dist directory if it doesn't exist
 mkdir -p dist
 
@@ -88,11 +93,11 @@ print_step "Creating zip archives"
 cd dist
 for dir in "${BUILT[@]}"; do
     if command -v zip >/dev/null 2>&1; then
-        zip -r "$dir.zip" "$dir"
+        zip -r "${dir}-${VERSION}.zip" "$dir"
     elif command -v 7z >/dev/null 2>&1; then
-        7z a "$dir.zip" "$dir" >/dev/null
+        7z a "${dir}-${VERSION}.zip" "$dir" >/dev/null
     elif command -v powershell.exe >/dev/null 2>&1; then
-        powershell.exe -Command "Compress-Archive -Path '$dir' -DestinationPath '$dir.zip'" >/dev/null
+        powershell.exe -Command "Compress-Archive -Path '$dir' -DestinationPath '${dir}-${VERSION}.zip'" >/dev/null
     else
         echo "No zip utility found" >&2
         exit 1

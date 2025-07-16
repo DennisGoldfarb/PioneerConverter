@@ -39,10 +39,15 @@ PioneerConverter <input path>
 
 If you prefer a portable copy download one of the zip files:
 
-- macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64.zip`
-- macOS Intel (x64): `PioneerConverter-osx-x64.zip`
-- Linux (x64): `PioneerConverter-linux-x64.zip`
-- Windows (x64): `PioneerConverter-win-x64.zip`
+- macOS M1/M2 (ARM64): `PioneerConverter-osx-arm64-1.2.3.zip`
+- macOS Intel (x64): `PioneerConverter-osx-x64-1.2.3.zip`
+- Linux (x64): `PioneerConverter-linux-x64-1.2.3.zip`
+- Windows (x64): `PioneerConverter-win-x64-1.2.3.zip`
+
+Source code archives are also provided as
+`PioneerConverter-1.2.3-source.zip` and
+`PioneerConverter-1.2.3-source.tar.gz`.
+(Replace `1.2.3` with the release tag.)
 
 Extract the archive and run the `PioneerConverter` executable from the
 extracted directory.  On macOS and Linux you may need to make the file
