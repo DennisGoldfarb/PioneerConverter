@@ -18,10 +18,11 @@ case "$OS" in
         ;;
 esac
 
-# Determine version from env or git tag
+# Determine version from env or latest Git tag
 VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
-# strip leading v if present
+# Remove a leading 'v' and any trailing newline
 VERSION="${VERSION#v}"
+VERSION="$(echo "$VERSION" | tr -d '\n')"
 export VERSION
 
 # Build binaries only for the current platform
@@ -44,7 +45,7 @@ case "$TARGET" in
     windows)
         echo "Creating Windows installer"
         pushd installers/windows > /dev/null
-        iscc /DMyAppVersion="$VERSION" PioneerConverter.iss
+        iscc "/DMyAppVersion=$VERSION" "PioneerConverter.iss"
         if [ -f Output/PioneerConverter-win-${VERSION}-Setup.exe ]; then
             mv "Output/PioneerConverter-win-${VERSION}-Setup.exe" "PioneerConverter-win-${VERSION}-Setup.exe"
         elif [ -f Output/PioneerConverter-win-Setup.exe ]; then

@@ -11,4 +11,6 @@ Run the script on macOS with Xcode command line tools installed:
 ./build_pkg.sh
 ```
 
-The result is `PioneerConverter.pkg` in the same directory.
+The result is either `PioneerConverter-arm64-<version>.pkg` or
+`PioneerConverter-x64-<version>.pkg` depending on the architecture.
+Replace `<version>` with the release tag.

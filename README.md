@@ -14,15 +14,18 @@ the command is available system&#8209;wide.
 
 ### Using the installers
 
-- **Windows**: run `PioneerConverter-win-Setup.exe`.  The program is
+- **Windows**: run `PioneerConverter-win-1.2.3-Setup.exe` (replace `1.2.3`
+  with the release tag).  The program is
   installed under *Program&nbsp;Files* and a `PioneerConverter` command
   is optionally added to your `PATH`.
-- **macOS**: open `PioneerConverter.pkg`.  This installs the files in
+- **macOS**: open `PioneerConverter-<arch>-1.2.3.pkg` (replace `1.2.3` with the
+  release tag).  This installs the files in
   `/usr/local/PioneerConverter` and links the `PioneerConverter` command
   to `/usr/local/bin`.
 - **Linux**: install the `.deb` package, e.g.
   ```bash
-  sudo dpkg -i PioneerConverter-linux_*.deb
+  sudo dpkg -i PioneerConverter-linux_1.2.3_amd64.deb
+  # replace 1.2.3 with the release tag
   ```
   This also installs the wrapper command to `/usr/local/bin`.
 
