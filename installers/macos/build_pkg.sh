@@ -29,7 +29,7 @@ cp -R "$DIST"/* "$PKGROOT/usr/local/$APPNAME/"
 
 cat <<WRAP > "$PKGROOT/usr/local/bin/pioneerconverter"
 #!/bin/bash
-/usr/local/$APPNAME/PioneerConverter/ "\$@"
+/usr/local/$APPNAME/ "\$@"
 WRAP
 chmod +x "$PKGROOT/usr/local/bin/pioneerconverter"
 
