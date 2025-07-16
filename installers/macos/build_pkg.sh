@@ -25,7 +25,7 @@ rm -rf "$PKGROOT"
 mkdir -p "$PKGROOT/usr/local/$APPNAME"
 mkdir -p "$PKGROOT/usr/local/bin"
 
-cp -R "$DIST"/* "$PKGROOT/usr/local/$APPNAME/PioneerConverter"
+cp -R "$DIST"/* "$PKGROOT/usr/local/$APPNAME/"
 
 cat <<WRAP > "$PKGROOT/usr/local/bin/pioneerconverter"
 #!/bin/bash
