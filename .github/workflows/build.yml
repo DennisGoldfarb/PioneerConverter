@@ -121,9 +121,18 @@ jobs:
       - name: Staple notarization ticket
         if: matrix.os == 'macos-latest'
         run: |
-          # Stapler can't operate on zip archives, so only staple pkg installers
           for pkg in installers/macos/PioneerConverter-*.pkg; do
             xcrun stapler staple "$pkg"
+          done
+
+          for zip in dist/PioneerConverter-osx-*.zip; do
+            arch=$(echo "$zip" | sed -E 's/.*osx-([^-]+)-.*\.zip/\1/')
+            dir="dist/PioneerConverter-osx-$arch"
+            if [ -f "$dir/PioneerConverter" ]; then
+              xcrun stapler staple "$dir/PioneerConverter"
+              rm -f "$zip"
+              (cd dist && zip -r "$(basename "$zip")" "$(basename "$dir")")
+            fi
           done
           
 
