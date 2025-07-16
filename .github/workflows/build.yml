@@ -208,7 +208,7 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           for file in artifacts/binary-*/*; do
-            name="BINARY-$(basename "$file")"
+            name="Binary-$(basename "$file")"
             gh release upload "$tag" "$file#$name" --clobber
           done
 
@@ -218,7 +218,17 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           for file in artifacts/installer-*/*; do
-            name="INSTALLER-$(basename "$file")"
+            base="$(basename "$file")"
+            dir="$(basename "$(dirname "$file")")"
+            case "$dir" in
+              installer-mac-arm64)
+                base="${base/-arm64/-osx-arm64}"
+                ;;
+              installer-mac-x64)
+                base="${base/-x64/-osx-x64}"
+                ;;
+            esac
+            name="Installer-$base"
             gh release upload "$tag" "$file#$name" --clobber
           done
 
