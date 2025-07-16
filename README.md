@@ -8,11 +8,7 @@ Convert Thermo `.raw` files into [Apache Arrow](https://arrow.apache.org/) table
 
 ## Install
 
-Grab an installer or zipped binary from the project releases. Installers place a `PioneerConverter` command on your `PATH`. Zip archives can be extracted anywhere; on macOS and Linux run `chmod +x PioneerConverter` before executing.
-
-```bash
-PioneerConverter <input path>
-```
+Grab an installer or zipped binary from the project releases. Installers place a `PioneerConverter` command on your `PATH`. Zip archives can be extracted anywhere. If using a zipped binary on macOS or Linux run `chmod +x PioneerConverter` before executing.
 
 ## Usage
 
