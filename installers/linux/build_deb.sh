@@ -2,7 +2,7 @@
 set -e
 
 APPNAME="PioneerConverter"
-VERSION="1.0.0"
+VERSION="${VERSION:-1.0.0}"
 ARCH="amd64"
 BUILD="debian"
 

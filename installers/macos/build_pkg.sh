@@ -2,18 +2,18 @@
 set -e
 
 APPNAME="PioneerConverter"
-VERSION="1.0.0"
+VERSION="${VERSION:-1.0.0}"
 PKGROOT="pkgroot"
 PKG_ARCH="${PKG_ARCH:-$(uname -m)}"
 
 case "$PKG_ARCH" in
   arm64|aarch64)
     DIST="../../dist/${APPNAME}-osx-arm64"
-    PKGFILE="${APPNAME}-arm64.pkg"
+    PKGFILE="${APPNAME}-arm64-${VERSION}.pkg"
     ;;
   x64|x86_64)
     DIST="../../dist/${APPNAME}-osx-x64"
-    PKGFILE="${APPNAME}-x64.pkg"
+    PKGFILE="${APPNAME}-x64-${VERSION}.pkg"
     ;;
   *)
     echo "Unsupported architecture: $PKG_ARCH" >&2
