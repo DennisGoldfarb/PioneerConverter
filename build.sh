@@ -9,6 +9,7 @@ print_step() {
 }
 
 TARGET_OS="${1:-all}"
+SKIP_MAC_ZIPS="${SKIP_MAC_ZIPS:-0}"
 
 # Determine version from env or latest Git tag
 VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
@@ -92,6 +93,10 @@ esac
 print_step "Creating zip archives"
 cd dist
 for dir in "${BUILT[@]}"; do
+    if [[ "$SKIP_MAC_ZIPS" == "1" && "$dir" == PioneerConverter-osx-* ]]; then
+        echo "Skipping zip for $dir"
+        continue
+    fi
     if command -v zip >/dev/null 2>&1; then
         zip -r "${dir}-${VERSION}.zip" "$dir"
     elif command -v 7z >/dev/null 2>&1; then
