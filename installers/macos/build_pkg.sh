@@ -19,9 +19,12 @@ chmod +x "$PKGROOT/usr/local/bin/pioneerconverter"
 
 if [[ -n "$CODESIGN_IDENTITY" ]]; then
   echo "Codesigning binaries"
-  codesign --verbose=4 --force --options runtime --timestamp --deep \
-    --sign "$CODESIGN_IDENTITY" \
-    "$PKGROOT/usr/local/$APPNAME/PioneerConverter"
+  while IFS= read -r -d '' file; do
+      if file "$file" | grep -q 'Mach-O'; then
+        codesign --verbose=4 --force --options runtime --timestamp \
+          --sign "$CODESIGN_IDENTITY" "$file"
+      fi
+    done < <(find "$PKGROOT/usr/local/$APPNAME" -type f -print0)
 fi
 
 pkgbuild --root "$PKGROOT" \
