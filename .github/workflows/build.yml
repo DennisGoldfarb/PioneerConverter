@@ -194,12 +194,6 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create source archives
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          git archive --format=zip --output "PioneerConverter-${tag}-source.zip" "$tag"
-          git archive --format=tar.gz --output "PioneerConverter-${tag}-source.tar.gz" "$tag"
-
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -237,14 +231,4 @@ jobs:
             name="Installer-$base"
             gh release upload "$tag" "$file#$name" --clobber
           done
-
-      - name: Upload sources to release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          gh release upload "$tag" \
-            "PioneerConverter-${tag}-source.zip#Source-PioneerConverter-${tag}.zip" \
-            "PioneerConverter-${tag}-source.tar.gz#Source-PioneerConverter-${tag}.tar.gz" \
-            --clobber
 
