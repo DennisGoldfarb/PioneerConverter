@@ -40,10 +40,14 @@ build_macos() {
 
     if [[ -n "$CODESIGN_IDENTITY" ]]; then
         print_step "Codesigning macOS binaries"
-        for file in dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-x64/PioneerConverter; do
-            codesign --verbose=4 --force --options runtime --timestamp \
-                --entitlements installers/macos/entitlements.plist \
-                --sign "$CODESIGN_IDENTITY" "$file"
+        for dir in dist/PioneerConverter-osx-arm64 dist/PioneerConverter-osx-x64; do
+            find "$dir" -type f | while read -r file; do
+                if file "$file" | grep -q 'Mach-O'; then
+                    codesign --verbose=4 --force --options runtime --timestamp \
+                        --entitlements installers/macos/entitlements.plist \
+                        --sign "$CODESIGN_IDENTITY" "$file"
+                fi
+            done
         done
     fi
 }
