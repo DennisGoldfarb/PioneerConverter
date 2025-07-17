@@ -15,7 +15,7 @@ There are three ways to get **PioneerConverter**:
     - macOS&nbsp;Intel (x64)
     - Linux (x64)
     - Windows (x64). 
-3. **Precompiled binaries** – Zipped binaries are available for Linux and Windows. Extract them anywhere and, on Linux, run `chmod +x /path/to/PioneerConverter` before executing. We currently do not publish zipped binaries for macOS due to Gatekeeper code‑signing restrictions.
+3. **Precompiled binaries** – Zipped binaries are available for Linux and Windows. Extract them anywhere and, on Linux, you may need to run `chmod +x /path/to/PioneerConverter` before executing. We currently do not publish zipped binaries for macOS due to Gatekeeper code‑signing restrictions.
 4. **Build from source** – If you prefer to build the tool yourself, follow the steps in the [Build from source](#build-from-source) section below.
 
 ## Usage
@@ -38,12 +38,17 @@ Options
 ## Build from source
 
 1. Install [.NET&nbsp;8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
-2. Clone this repository and run:
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/nwamsley1/PioneerConverter.git
+   cd /path/to/PioneerConverter
+   ```
+3. Compile:
+   ```bash
+   chmod +x build.sh   # optional, only if you're getting permission error
+   ./build.sh          # or ./build.sh macos|linux|windows
+   ```
 
-```bash
-chmod +x build.sh
-./build.sh          # or ./build.sh macos|linux|windows
-```
 
 ## Output format
 
