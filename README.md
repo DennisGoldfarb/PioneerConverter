@@ -10,9 +10,13 @@ Convert Thermo `.raw` files into [Apache Arrow](https://arrow.apache.org/) table
 
 There are three ways to get **PioneerConverter**:
 
-1. **Installers** – Download the installer for your platform from the releases page. Installers are available for macOS&nbsp;M1/M2 (ARM64), macOS&nbsp;Intel (x64), Linux (x64) and Windows (x64). Running the installer puts a `PioneerConverter` command on your `PATH`.
-2. **Precompiled binaries** – Releases also contain zipped binaries for Linux and Windows. Extract them anywhere and, on Linux, run `chmod +x /path/to/PioneerConverter` before executing. We currently do not publish zipped binaries for macOS due to Gatekeeper code‑signing restrictions.
-3. **Build from source** – If you prefer to build the tool yourself, follow the steps in the [Build from source](#build-from-source) section below.
+1. **Installers** – Download the installer for your platform from the releases page. Running the installer puts a `PioneerConverter` command on your `PATH`. Installers are available for:
+    - macOS&nbsp;M1/M2 (ARM64)
+    - macOS&nbsp;Intel (x64)
+    - Linux (x64)
+    - Windows (x64). 
+3. **Precompiled binaries** – Zipped binaries are available for Linux and Windows. Extract them anywhere and, on Linux, run `chmod +x /path/to/PioneerConverter` before executing. We currently do not publish zipped binaries for macOS due to Gatekeeper code‑signing restrictions.
+4. **Build from source** – If you prefer to build the tool yourself, follow the steps in the [Build from source](#build-from-source) section below.
 
 ## Usage
 
