@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Function to print step information
 print_step() {
@@ -7,57 +8,136 @@ print_step() {
     echo "-------------------------"
 }
 
+TARGET_OS="${1:-all}"
+SKIP_MAC_ZIPS="${SKIP_MAC_ZIPS:-0}"
+
+# Determine version from env or latest Git tag
+VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
+VERSION="${VERSION#v}"
+VERSION="$(echo "$VERSION" | tr -d '\n')"
+
 # Create dist directory if it doesn't exist
 mkdir -p dist
 
-# Build for macOS ARM64 (M1/M2)
-print_step "Building for macOS ARM64"
-dotnet publish -c Release \
-  -r osx-arm64 \
-  -p:PublishSingleFile=false \
-  -p:PublishTrimmed=false \
-  --self-contained true \
-  -o dist/PioneerConverter-osx-arm64
+build_macos() {
+    print_step "Building for macOS ARM64"
+    dotnet publish PioneerConverter.csproj -c Release \
+      -r osx-arm64 \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
+      -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
+      --self-contained true \
+      -o dist/PioneerConverter-osx-arm64
 
-# Build for macOS x64 (Intel)
-print_step "Building for macOS x64"
-dotnet publish -c Release \
-  -r osx-x64 \
-  -p:PublishSingleFile=false \
-  -p:PublishTrimmed=false \
-  --self-contained true \
-  -o dist/PioneerConverter-osx-x64
+    print_step "Building for macOS x64"
+    dotnet publish PioneerConverter.csproj -c Release \
+      -r osx-x64 \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
+      -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
+      --self-contained true \
+      -o dist/PioneerConverter-osx-x64
 
-# Build for Linux x64
-print_step "Building for Linux x64"
-dotnet publish -c Release \
-  -r linux-x64 \
-  -p:PublishSingleFile=false \
-  -p:PublishTrimmed=false \
-  --self-contained true \
-  -o dist/PioneerConverter-linux-x64
+    chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
+    chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
 
-# Build for Windows x64
-print_step "Building for Windows x64"
-dotnet publish -c Release \
-  -r win-x64 \
-  -p:PublishSingleFile=false \
-  -p:PublishTrimmed=false \
-  --self-contained true \
-  -o dist/PioneerConverter-win-x64
+    mkdir -p dist/PioneerConverter-osx-arm64/bin
+    mkdir -p dist/PioneerConverter-osx-x64/bin
+    mv dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-arm64/bin/
+    mv dist/PioneerConverter-osx-x64/PioneerConverter dist/PioneerConverter-osx-x64/bin/
+}
 
-# Make executables runnable on Unix-like systems
-chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
-chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
-chmod +x dist/PioneerConverter-linux-x64/PioneerConverter
+build_linux() {
+    print_step "Building for Linux x64"
+    dotnet publish PioneerConverter.csproj -c Release \
+      -r linux-x64 \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
+      -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
+      --self-contained true \
+      -o dist/PioneerConverter-linux-x64
 
-# Create zip archives
+    chmod +x dist/PioneerConverter-linux-x64/PioneerConverter
+    mkdir -p dist/PioneerConverter-linux-x64/bin
+    mv dist/PioneerConverter-linux-x64/PioneerConverter dist/PioneerConverter-linux-x64/bin/
+}
+
+build_windows() {
+    print_step "Building for Windows x64"
+    dotnet publish PioneerConverter.csproj -c Release \
+      -r win-x64 \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
+      -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
+      --self-contained true \
+      -o dist/PioneerConverter-win-x64
+
+    mkdir -p dist/PioneerConverter-win-x64/bin
+    mv dist/PioneerConverter-win-x64/PioneerConverter.exe dist/PioneerConverter-win-x64/bin/
+}
+
+BUILT=()
+
+case "$TARGET_OS" in
+    macos)
+        build_macos
+        BUILT+=(PioneerConverter-osx-arm64 PioneerConverter-osx-x64)
+        ;;
+    linux)
+        build_linux
+        BUILT+=(PioneerConverter-linux-x64)
+        ;;
+    windows)
+        build_windows
+        BUILT+=(PioneerConverter-win-x64)
+        ;;
+    all)
+        build_macos
+        build_linux
+        build_windows
+        BUILT+=(PioneerConverter-osx-arm64 PioneerConverter-osx-x64 \
+               PioneerConverter-linux-x64 PioneerConverter-win-x64)
+        ;;
+    *)
+        echo "Unknown target OS: $TARGET_OS" >&2
+        exit 1
+        ;;
+esac
+
 print_step "Creating zip archives"
 cd dist
-zip -r PioneerConverter-osx-arm64.zip PioneerConverter-osx-arm64
-zip -r PioneerConverter-osx-x64.zip PioneerConverter-osx-x64
-zip -r PioneerConverter-linux-x64.zip PioneerConverter-linux-x64
-zip -r PioneerConverter-win-x64.zip PioneerConverter-win-x64
+for dir in "${BUILT[@]}"; do
+    if [[ "$SKIP_MAC_ZIPS" == "1" && "$dir" == PioneerConverter-osx-* ]]; then
+        echo "Skipping zip for $dir"
+        continue
+    fi
+    if command -v zip >/dev/null 2>&1; then
+        zip -r "${dir}-${VERSION}.zip" "$dir"
+    elif command -v 7z >/dev/null 2>&1; then
+        7z a "${dir}-${VERSION}.zip" "$dir" >/dev/null
+    elif command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -Command "Compress-Archive -Path '$dir' -DestinationPath '${dir}-${VERSION}.zip'" >/dev/null
+    else
+        echo "No zip utility found" >&2
+        exit 1
+    fi
+done
 cd ..
 
 echo "Build complete! Check the dist directory for the output files."

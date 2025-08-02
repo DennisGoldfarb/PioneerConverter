@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -33,20 +33,38 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Copy all necessary files -->
+  <!-- Copy runtime libraries only -->
   <Target Name="CopyAllFiles" BeforeTargets="Build">
     <ItemGroup>
-      <LibFiles Include="Libs\**\*.*" />
+      <!-- Include managed and native libraries but skip docs and packages -->
+      <LibFiles Include="Libs\**\*.dll;Libs\**\*.so;Libs\**\*.dylib" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
   <!-- Also copy for publish -->
   <Target Name="CopyAllFilesOnPublish" BeforeTargets="Publish">
     <ItemGroup>
-      <LibFiles Include="Libs\**\*.*" />
+      <!-- Include managed and native libraries but skip docs and packages -->
+      <LibFiles Include="Libs\**\*.dll;Libs\**\*.so;Libs\**\*.dylib" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <!-- Remove documentation and package files from build output -->
+  <Target Name="RemoveNonRuntimeFiles" AfterTargets="Build">
+    <ItemGroup>
+      <UnneededFiles Include="$(OutputPath)\*.xml;$(OutputPath)\*.pdb;$(OutputPath)\*.nupkg" />
+    </ItemGroup>
+    <Delete Files="@(UnneededFiles)" />
+  </Target>
+
+  <!-- Remove documentation and package files from publish output -->
+  <Target Name="RemoveNonRuntimeFilesOnPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <UnneededFiles Include="$(PublishDir)\*.xml;$(PublishDir)\*.pdb;$(PublishDir)\*.nupkg" />
+    </ItemGroup>
+    <Delete Files="@(UnneededFiles)" />
   </Target>
 
 </Project>
