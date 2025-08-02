@@ -10,5 +10,5 @@ Run the script on a Debian-based system:
 ./build_deb.sh
 ```
 
-The resulting `PioneerConverter-linux_<version>_amd64.deb` can be installed
+The resulting `PioneerConverter-linux_<version>_x64.deb` can be installed
 with `dpkg -i` where `<version>` is the release tag.

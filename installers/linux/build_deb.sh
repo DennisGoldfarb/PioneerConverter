@@ -5,8 +5,8 @@ APPNAME="PioneerConverter"
 VERSION="${VERSION:-1.0.0}"
 # Architecture used inside the Debian control file
 ARCH_DEB="amd64"
-# Architecture label used for generated package filenames
-ARCH_OUT="x64"
+# Architecture label used in the package filename for consistency
+ARCH_PKG="x64"
 BUILD="debian"
 
 rm -rf "$BUILD"
@@ -32,6 +32,6 @@ Maintainer: edu.washu.goldfarblab.pioneerconverter
 Description: PioneerConverter command line tool
 CTRL
 
-dpkg-deb --build "$BUILD" "${APPNAME}-linux-${ARCH_OUT}-${VERSION}.deb"
+dpkg-deb --build "$BUILD" "${APPNAME}-linux_${VERSION}_${ARCH_PKG}.deb"
 
-echo "Package created: ${APPNAME}-linux-${ARCH_OUT}-${VERSION}.deb"
+echo "Package created: ${APPNAME}-linux_${VERSION}_${ARCH_PKG}.deb"

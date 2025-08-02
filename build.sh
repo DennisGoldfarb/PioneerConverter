@@ -29,6 +29,7 @@ build_macos() {
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
       --self-contained true \
       -o dist/PioneerConverter-osx-arm64
 
@@ -41,6 +42,7 @@ build_macos() {
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
       --self-contained true \
       -o dist/PioneerConverter-osx-x64
 
@@ -63,6 +65,7 @@ build_linux() {
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
       --self-contained true \
       -o dist/PioneerConverter-linux-x64
 
@@ -81,6 +84,7 @@ build_windows() {
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
+      -p:Version="${VERSION}" \
       --self-contained true \
       -o dist/PioneerConverter-win-x64
 
