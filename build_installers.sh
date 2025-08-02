@@ -50,7 +50,7 @@ case "$TARGET" in
         echo "Debug: MSYS2_ARG_CONV_EXCL=${MSYS2_ARG_CONV_EXCL}"
         echo "Debug: running iscc with /DMyAppVersion=${VERSION} PioneerConverter.iss via cmd.exe"
         echo "Debug: directory contents:" && ls -1
-        cmd.exe //C iscc "/DMyAppVersion=${VERSION}" "PioneerConverter.iss"
+        cmd.exe //C "iscc /DMyAppVersion=${VERSION} PioneerConverter.iss"
         mv "Output/PioneerConverter-win-${VERSION}-Setup.exe" "PioneerConverter-win-${VERSION}-Setup.exe"
         popd > /dev/null
         ;;
