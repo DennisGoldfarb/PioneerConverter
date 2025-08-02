@@ -45,16 +45,8 @@ case "$TARGET" in
     windows)
         echo "Creating Windows installer"
         pushd installers/windows > /dev/null
-        iscc "PioneerConverter.iss"
-        output_file="$(ls Output/PioneerConverter-win-*-Setup.exe 2>/dev/null | head -n1)"
-        if [ -n "$output_file" ]; then
-            mv "$output_file" "PioneerConverter-win-${VERSION}-Setup.exe"
-            echo "first move"
-        elif [ -f Output/PioneerConverter-win-Setup.exe ]; then
-            mv Output/PioneerConverter-win-Setup.exe "PioneerConverter-win-${VERSION}-Setup.exe"
-            echo "second move"
-            echo "PioneerConverter-win-${VERSION}-Setup.exe"
-        fi
+        iscc "/DMyAppVersion=${VERSION}" "PioneerConverter.iss"
+        mv "Output/PioneerConverter-win-${VERSION}-Setup.exe" "PioneerConverter-win-${VERSION}-Setup.exe"
         popd > /dev/null
         ;;
 esac
