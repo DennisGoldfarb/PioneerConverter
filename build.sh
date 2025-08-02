@@ -23,16 +23,22 @@ build_macos() {
     print_step "Building for macOS ARM64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-arm64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-osx-arm64
 
     print_step "Building for macOS x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-osx-x64
 
@@ -44,8 +50,11 @@ build_linux() {
     print_step "Building for Linux x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r linux-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-linux-x64
 
@@ -56,8 +65,11 @@ build_windows() {
     print_step "Building for Windows x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r win-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-win-x64
 }

@@ -47,7 +47,7 @@ fi
 UNSIGNED="${PKGFILE%.pkg}-unsigned.pkg"
 
 pkgbuild --root "$PKGROOT" \
-  --identifier "com.example.pioneerconverter" \
+  --identifier "edu.washu.goldfarblab.pioneerconverter" \
   --version "$VERSION" \
   --install-location "/" "$UNSIGNED"
 

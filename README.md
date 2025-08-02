@@ -15,7 +15,7 @@ There are three ways to get **PioneerConverter**:
     - macOS&nbsp;Intel (x64)
     - Linux (x64)
     - Windows (x64). 
-3. **Precompiled binaries** – Zipped binaries are available for Linux and Windows. Extract them anywhere and, on Linux, you may need to run `chmod +x /path/to/PioneerConverter` before executing. We currently do not publish zipped binaries for macOS due to Gatekeeper code‑signing restrictions.
+3. **Precompiled binaries** – Zipped binaries are available for Linux, macOS, and Windows. Extract them anywhere and, on Linux or macOS, you may need to run `chmod +x /path/to/PioneerConverter` before executing.
 4. **Build from source** – If you prefer to build the tool yourself, follow the steps in the [Build from source](#build-from-source) section below.
 
 ## Usage
