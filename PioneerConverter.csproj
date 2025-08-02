@@ -13,40 +13,40 @@
   <ItemGroup>
     <Reference Include="ThermoFisher.CommonCore.BackgroundSubtraction">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.BackgroundSubtraction.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="ThermoFisher.CommonCore.Data">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.Data.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="ThermoFisher.CommonCore.MassPrecisionEstimator">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.MassPrecisionEstimator.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="ThermoFisher.CommonCore.RawFileReader">
       <HintPath>Libs\NetCore\ThermoFisher.CommonCore.RawFileReader.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Apache.Arrow">
       <HintPath>Libs\Apache.Arrow.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 
   <!-- Copy all necessary files -->
   <Target Name="CopyAllFiles" BeforeTargets="Build">
     <ItemGroup>
-      <LibFiles Include="Libs\**\*.*" />
+      <LibFiles Include="Libs\**\*.dll" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
   <!-- Also copy for publish -->
   <Target Name="CopyAllFilesOnPublish" BeforeTargets="Publish">
     <ItemGroup>
-      <LibFiles Include="Libs\**\*.*" />
+      <LibFiles Include="Libs\**\*.dll" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>
