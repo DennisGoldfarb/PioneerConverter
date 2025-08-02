@@ -23,43 +23,69 @@ build_macos() {
     print_step "Building for macOS ARM64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-arm64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-osx-arm64
 
     print_step "Building for macOS x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-osx-x64
 
     chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
     chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
+
+    mkdir -p dist/PioneerConverter-osx-arm64/bin
+    mkdir -p dist/PioneerConverter-osx-x64/bin
+    mv dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-arm64/bin/
+    mv dist/PioneerConverter-osx-x64/PioneerConverter dist/PioneerConverter-osx-x64/bin/
 }
 
 build_linux() {
     print_step "Building for Linux x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r linux-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-linux-x64
 
     chmod +x dist/PioneerConverter-linux-x64/PioneerConverter
+    mkdir -p dist/PioneerConverter-linux-x64/bin
+    mv dist/PioneerConverter-linux-x64/PioneerConverter dist/PioneerConverter-linux-x64/bin/
 }
 
 build_windows() {
     print_step "Building for Windows x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r win-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
+      -p:DebugType=None \
+      -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-win-x64
+
+    mkdir -p dist/PioneerConverter-win-x64/bin
+    mv dist/PioneerConverter-win-x64/PioneerConverter.exe dist/PioneerConverter-win-x64/bin/
 }
 
 BUILT=()

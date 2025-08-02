@@ -18,13 +18,13 @@ SolidCompression=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\..\dist\PioneerConverter-win-x64\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "..\\..\\dist\\PioneerConverter-win-x64\\*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Tasks]
 Name: "addtopath"; Description: "Add application directory to PATH"; Flags: unchecked
 
 [Registry]
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}"; Flags: preservestringtype; Tasks: addtopath
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}\bin"; Flags: preservestringtype; Tasks: addtopath
 
 [Icons]
-Name: "{group}\PioneerConverter"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\\PioneerConverter"; Filename: "{app}\\bin\\{#MyAppExeName}"

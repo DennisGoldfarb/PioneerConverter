@@ -29,7 +29,7 @@ cp -R "$DIST"/* "$PKGROOT/usr/local/$APPNAME/"
 
 cat <<WRAP > "$PKGROOT/usr/local/bin/PioneerConverter"
 #!/bin/bash
-/usr/local/$APPNAME/PioneerConverter "\$@"
+/usr/local/$APPNAME/bin/PioneerConverter "\$@"
 WRAP
 chmod +x "$PKGROOT/usr/local/bin/PioneerConverter"
 
@@ -47,7 +47,7 @@ fi
 UNSIGNED="${PKGFILE%.pkg}-unsigned.pkg"
 
 pkgbuild --root "$PKGROOT" \
-  --identifier "com.example.pioneerconverter" \
+  --identifier "edu.washu.goldfarblab.pioneerconverter" \
   --version "$VERSION" \
   --install-location "/" "$UNSIGNED"
 

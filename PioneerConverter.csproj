@@ -38,7 +38,7 @@
     <ItemGroup>
       <LibFiles Include="Libs\**\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
   <!-- Also copy for publish -->
@@ -46,7 +46,7 @@
     <ItemGroup>
       <LibFiles Include="Libs\**\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

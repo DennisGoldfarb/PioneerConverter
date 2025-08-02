@@ -25,8 +25,8 @@ VERSION="${VERSION#v}"
 VERSION="$(echo "$VERSION" | tr -d '\n')"
 export VERSION
 
-# Build binaries only for the current platform
-./build.sh "$TARGET"
+# Build binaries for all platforms so macOS precompiled binaries are released
+./build.sh all
 
 case "$TARGET" in
     linux)

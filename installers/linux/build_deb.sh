@@ -3,7 +3,10 @@ set -e
 
 APPNAME="PioneerConverter"
 VERSION="${VERSION:-1.0.0}"
-ARCH="amd64"
+# Architecture used inside the Debian control file
+ARCH_DEB="amd64"
+# Architecture label used for generated package filenames
+ARCH_OUT="x64"
 BUILD="debian"
 
 rm -rf "$BUILD"
@@ -15,7 +18,7 @@ cp -R ../../dist/PioneerConverter-linux-x64/* "$BUILD/usr/local/$APPNAME/"
 
 cat <<WRAP > "$BUILD/usr/local/bin/PioneerConverter"
 #!/bin/bash
-/usr/local/$APPNAME/PioneerConverter "\$@"
+  /usr/local/$APPNAME/bin/PioneerConverter "\$@"
 WRAP
 chmod +x "$BUILD/usr/local/bin/PioneerConverter"
 
@@ -24,11 +27,11 @@ Package: pioneerconverter
 Version: $VERSION
 Section: utils
 Priority: optional
-Architecture: $ARCH
-Maintainer: Unknown
+Architecture: $ARCH_DEB
+Maintainer: edu.washu.goldfarblab.pioneerconverter
 Description: PioneerConverter command line tool
 CTRL
 
-dpkg-deb --build "$BUILD" "${APPNAME}-linux_${VERSION}_${ARCH}.deb"
+dpkg-deb --build "$BUILD" "${APPNAME}-linux-${ARCH_OUT}-${VERSION}.deb"
 
-echo "Package created: ${APPNAME}-linux_${VERSION}_${ARCH}.deb"
+echo "Package created: ${APPNAME}-linux-${ARCH_OUT}-${VERSION}.deb"
