@@ -46,6 +46,11 @@ build_macos() {
 
     chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
     chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
+
+    mkdir -p dist/PioneerConverter-osx-arm64/bin
+    mkdir -p dist/PioneerConverter-osx-x64/bin
+    mv dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-arm64/bin/
+    mv dist/PioneerConverter-osx-x64/PioneerConverter dist/PioneerConverter-osx-x64/bin/
 }
 
 build_linux() {
@@ -62,6 +67,8 @@ build_linux() {
       -o dist/PioneerConverter-linux-x64
 
     chmod +x dist/PioneerConverter-linux-x64/PioneerConverter
+    mkdir -p dist/PioneerConverter-linux-x64/bin
+    mv dist/PioneerConverter-linux-x64/PioneerConverter dist/PioneerConverter-linux-x64/bin/
 }
 
 build_windows() {
@@ -76,6 +83,9 @@ build_windows() {
       -p:DebugSymbols=false \
       --self-contained true \
       -o dist/PioneerConverter-win-x64
+
+    mkdir -p dist/PioneerConverter-win-x64/bin
+    mv dist/PioneerConverter-win-x64/PioneerConverter.exe dist/PioneerConverter-win-x64/bin/
 }
 
 BUILT=()

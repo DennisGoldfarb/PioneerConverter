@@ -24,7 +24,7 @@ Source: "..\..\dist\PioneerConverter-win-x64\*"; DestDir: "{app}"; Flags: recurs
 Name: "addtopath"; Description: "Add application directory to PATH"; Flags: unchecked
 
 [Registry]
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}"; Flags: preservestringtype; Tasks: addtopath
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}\bin"; Flags: preserve stringtype; Tasks: addtopath
 
 [Icons]
-Name: "{group}\PioneerConverter"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\PioneerConverter"; Filename: "{app}\bin\{#MyAppExeName}"

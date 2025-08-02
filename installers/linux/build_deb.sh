@@ -18,7 +18,7 @@ cp -R ../../dist/PioneerConverter-linux-x64/* "$BUILD/usr/local/$APPNAME/"
 
 cat <<WRAP > "$BUILD/usr/local/bin/PioneerConverter"
 #!/bin/bash
-/usr/local/$APPNAME/PioneerConverter "\$@"
+  /usr/local/$APPNAME/bin/PioneerConverter "\$@"
 WRAP
 chmod +x "$BUILD/usr/local/bin/PioneerConverter"
 
