@@ -25,6 +25,7 @@ build_macos() {
       -r osx-arm64 \
       -p:PublishSingleFile=true \
       -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
@@ -36,6 +37,7 @@ build_macos() {
       -r osx-x64 \
       -p:PublishSingleFile=true \
       -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
@@ -52,6 +54,7 @@ build_linux() {
       -r linux-x64 \
       -p:PublishSingleFile=true \
       -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
@@ -67,6 +70,7 @@ build_windows() {
       -r win-x64 \
       -p:PublishSingleFile=true \
       -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
       -p:DebugSymbols=false \
