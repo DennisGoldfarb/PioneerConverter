@@ -214,7 +214,7 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           for file in artifacts/binary-*/*; do
-            name="Binary-$(basename "$file")"
+            name="$(basename "$file")"
             gh release upload "$tag" "$file#$name" --clobber
           done
 
@@ -234,7 +234,7 @@ jobs:
                 base="${base/-x64/-osx-x64}"
                 ;;
             esac
-            name="Installer-$base"
+            name="$base"
             gh release upload "$tag" "$file#$name" --clobber
           done
 
