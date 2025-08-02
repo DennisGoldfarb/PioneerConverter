@@ -45,12 +45,8 @@ case "$TARGET" in
     windows)
         echo "Creating Windows installer"
         pushd installers/windows > /dev/null
-        echo "Debug: iscc path: $(command -v iscc)"
         export MSYS2_ARG_CONV_EXCL="/D*"
-        echo "Debug: MSYS2_ARG_CONV_EXCL=${MSYS2_ARG_CONV_EXCL}"
-        echo "Debug: running iscc with /DMyAppVersion=${VERSION} PioneerConverter.iss"
-        echo "Debug: directory contents:" && ls -1
-        iscc /DMyAppVersion=${VERSION} PioneerConverter.iss
+        cmd.exe //C "iscc /DMyAppVersion=${VERSION} PioneerConverter.iss"
         mv "Output/PioneerConverter-win-${VERSION}-Setup.exe" "PioneerConverter-win-${VERSION}-Setup.exe"
         popd > /dev/null
         ;;
