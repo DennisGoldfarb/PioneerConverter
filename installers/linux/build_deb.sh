@@ -32,6 +32,6 @@ Maintainer: edu.washu.goldfarblab.pioneerconverter
 Description: PioneerConverter command line tool
 CTRL
 
-dpkg-deb --build "$BUILD" "${APPNAME}-linux_${VERSION}_${ARCH_PKG}.deb"
+dpkg-deb --build "$BUILD" "${APPNAME}-linux-${ARCH_PKG}-${VERSION}.deb"
 
-echo "Package created: ${APPNAME}-linux_${VERSION}_${ARCH_PKG}.deb"
+echo "Package created: ${APPNAME}-linux-${ARCH_PKG}-${VERSION}.deb"
