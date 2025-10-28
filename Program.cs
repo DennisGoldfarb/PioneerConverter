@@ -393,7 +393,36 @@ internal static class Program
                         {
                             if (trailerData.Labels[j] == "HCD Energy V:")
                             {
-                                ev = Convert.ToSingle(trailerData.Values[j]);
+                                string energyValue = trailerData.Values[j].Trim();
+
+                                // Check if this is a comma-delimited list (stepped NCE)
+                                if (energyValue.Contains(','))
+                                {
+                                    // Parse comma-delimited values and calculate mean
+                                    string[] energyValues = energyValue.Split(',');
+                                    float sum = 0.0f;
+                                    int count = 0;
+                                    foreach (string value in energyValues)
+                                    {
+                                        if (float.TryParse(value.Trim(), out float parsedValue))
+                                        {
+                                            sum += parsedValue;
+                                            count++;
+                                        }
+                                    }
+                                    if (count > 0)
+                                    {
+                                        ev = sum / count;
+                                    }
+                                }
+                                else
+                                {
+                                    // Single value
+                                    if (float.TryParse(energyValue, out float parsedValue))
+                                    {
+                                        ev = parsedValue;
+                                    }
+                                }
                                 break;
                             }
                         }
