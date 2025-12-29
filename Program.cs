@@ -305,7 +305,7 @@ internal static class Program
                 int batchEnd = Math.Min(batchStart + batchSize - 1, totalScans);
                 //Get Number of Mass Peaks in the Batch (used for pre-allocation)
                 System.UInt64 batch_n_peaks = 0;
-                var batchStats = new List<IScanStats>(batchEnd - batchStart + 1);
+                var batchStats = new List<ScanStatistics>(batchEnd - batchStart + 1);
                 for (int i = batchStart; i <= batchEnd; i++)
                 {
                     var scanStats = rawFile.GetScanStatsForScanNumber(i)!;
