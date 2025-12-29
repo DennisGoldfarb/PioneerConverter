@@ -166,7 +166,16 @@ internal static class Program
         //var myThreadManager = RawFileReaderFactory.CreateThreadManager("/Users/n.t.wamsley/Desktop/20230324_OLEP08_200ng_30min_E20H50Y30_180K_2Th3p5ms_02.raw");
         //var rawFile = myThreadManager.CreateThreadAccessor();
         Console.WriteLine("Starting Conversion For: {0}", Path.GetFileNameWithoutExtension(inputFile));
-        var rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+        IRawDataExtended rawFile;
+        try
+        {
+            rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error opening ({0}) - {1}", ex.Message, inputFile);
+            return;
+        }
         if (!rawFile.IsOpen || rawFile.IsError)
         {
             // Check for any errors in the RAW file
