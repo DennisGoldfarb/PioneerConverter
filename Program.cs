@@ -359,10 +359,14 @@ internal static class Program
                     var scan = Scan.FromFile(rawFile, i);
                     massListBuilder.Append();
                     intensityListBuilder.Append();
-                    for (int j = 0; j < scan.CentroidScan.Length; j++)
+                    var masses = scan.CentroidScan.Masses;
+                    var intensities = scan.CentroidScan.Intensities;
+                    if (massValueBuilder != null && intensityValueBuilder != null)
                     {
-                        massValueBuilder?.Append((float)scan.CentroidScan.Masses[j]);
-                        intensityValueBuilder?.Append((float)scan.CentroidScan.Intensities[j]);
+                        var massValues = Array.ConvertAll(masses, static value => (float)value);
+                        var intensityValues = Array.ConvertAll(intensities, static value => (float)value);
+                        massValueBuilder.AppendRange(massValues);
+                        intensityValueBuilder.AppendRange(intensityValues);
                     }
                     //Scan Number
                     scanHeaderBuilder.Append(rawFile.GetFilterForScanNumber(i).ToString());
