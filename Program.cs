@@ -1,5 +1,6 @@
 ﻿// All using statements must come first
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +12,6 @@ using ThermoFisher.CommonCore.Data.Business;
 using ThermoFisher.CommonCore.Data.FilterEnums;
 using ThermoFisher.CommonCore.Data.Interfaces;
 using ThermoFisher.CommonCore.MassPrecisionEstimator;
-using ThermoFisher.CommonCore.RawFileReader;
 
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
@@ -166,21 +166,20 @@ internal static class Program
         //var myThreadManager = RawFileReaderFactory.CreateThreadManager("/Users/n.t.wamsley/Desktop/20230324_OLEP08_200ng_30min_E20H50Y30_180K_2Th3p5ms_02.raw");
         //var rawFile = myThreadManager.CreateThreadAccessor();
         Console.WriteLine("Starting Conversion For: {0}", Path.GetFileNameWithoutExtension(inputFile));
-        var rawFile = RawFileReaderAdapter.FileFactory(inputFile);
-        if (!rawFile.IsOpen || rawFile.IsError)
+        using var threadManager = RawFileReaderFactory.CreateThreadManager(inputFile);
+        using var rawFile = threadManager.CreateThreadAccessor();
+        if (rawFile.IsError)
         {
             // Check for any errors in the RAW file
-            if (rawFile.IsError)
-            {
-                Console.WriteLine("Error opening ({0}) - {1}", rawFile.FileError.ErrorMessage, inputFile);
-                rawFile.Dispose();
-                return;
-            }
-            Console.WriteLine("Unable to access the RAW file using the RawFileReader class!");
-            rawFile.Dispose();
+            Console.WriteLine("Error opening ({0}) - {1}", rawFile.FileError.ErrorMessage, inputFile);
             return;
         }
-        //var rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+
+        if (!rawFile.IsOpen)
+        {
+            Console.WriteLine("Unable to access the RAW file using the RawFileReader class!");
+            return;
+        }
 
         // Get the number of instruments (controllers) present in the RAW file and set the 
         // selected instrument to the MS instrument, first instance of it
@@ -294,200 +293,223 @@ internal static class Program
         var watch = new System.Diagnostics.Stopwatch();
         watch.Start();
                 
-        int totalScans = lastScanNumber - firstScanNumber + 1;
-        //string[] scanHeader = new string[totalScans];
         using (var fileStream = new FileStream(outputFile, FileMode.Create))
         using (var writer = new Apache.Arrow.Ipc.ArrowFileWriter(fileStream, schema))
         {
             writer.WriteStartAsync().Wait();
+            var batchRanges = new List<(int Index, int Start, int End)>();
+            int batchIndex = 0;
             for (int batchStart = firstScanNumber; batchStart <= lastScanNumber; batchStart += batchSize)
             {
-                int batchEnd = Math.Min(batchStart + batchSize - 1, totalScans);
-                //Get Number of Mass Peaks in the Batch (used for pre-allocation)
-                System.UInt64 batch_n_peaks = 0;
-                for (int i = batchStart; i <= batchEnd; i++)
-                {
-                    batch_n_peaks += (ulong)rawFile.GetScanStatsForScanNumber(i)!.PacketCount;
-                }
-                //batch_n_peaks = (int)batch_n_peaks;
-                //Mass and Intensity Lists
-                var massListBuilder = new ListArray.Builder(FloatType.Default);
-                var massValueBuilder = massListBuilder.ValueBuilder as FloatArray.Builder;
-                var intensityListBuilder = new ListArray.Builder(FloatType.Default);
-                var intensityValueBuilder = intensityListBuilder.ValueBuilder as FloatArray.Builder;
-                //Scan Stats Fields 
-                var scanHeaderBuilder = new StringArray.Builder();
-                var scanNumberBuilder = new Int32Array.Builder();
-                var basePeakMzBuilder = new FloatArray.Builder();
-                var basePeakIntensityBuilder = new FloatArray.Builder();
-                var packetTypeBuilder = new Int32Array.Builder();
-                var retentionTimeBuilder = new FloatArray.Builder();
-                var lowMzBuilder = new FloatArray.Builder();
-                var highMzBuilder = new FloatArray.Builder();
-                var ticBuilder = new FloatArray.Builder();
-                //Scan Event Fields
-                var centerMzBuilder = new FloatArray.Builder();
-                var isolationWidthMzBuilder = new FloatArray.Builder();
-                var collisionEnergyBuilder = new FloatArray.Builder();
-                var collisionEnergyEvBuilder = new FloatArray.Builder();
-                var msOrderBuilder = new UInt8Array.Builder();
-                //Apache.ARrow.Types.StringType
-                //Pre-Allocation 
-                massListBuilder.Reserve(batchSize);
-                intensityListBuilder.Reserve(batchSize);
-                scanNumberBuilder.Reserve(batchSize);
-                basePeakMzBuilder.Reserve(batchSize);
-                basePeakIntensityBuilder.Reserve(batchSize);
-                packetTypeBuilder.Reserve(batchSize);
-                retentionTimeBuilder.Reserve(batchSize);
-                lowMzBuilder.Reserve(batchSize);
-                highMzBuilder.Reserve(batchSize);
-                ticBuilder.Reserve(batchSize);
-                centerMzBuilder.Reserve(batchSize);
-                isolationWidthMzBuilder.Reserve(batchSize);
-                collisionEnergyBuilder.Reserve(batchSize);
-                collisionEnergyEvBuilder.Reserve(batchSize);
-                msOrderBuilder.Reserve(batchSize);
-                //scanHeaderBuilder.Reserve(batchSize);
-                massValueBuilder?.Reserve((int)batch_n_peaks);
-                intensityValueBuilder?.Reserve((int)batch_n_peaks);
+                int batchEnd = Math.Min(batchStart + batchSize - 1, lastScanNumber);
+                batchRanges.Add((batchIndex++, batchStart, batchEnd));
+            }
 
-                //Read batch of raw file 
-                for (int i = batchStart; i <= batchEnd; i++)
+            var batchQueue = new BlockingCollection<(int Index, RecordBatch Batch)>();
+            var writerTask = Task.Run(() =>
+            {
+                var pendingBatches = new SortedDictionary<int, RecordBatch>();
+                int nextIndex = 0;
+                foreach (var item in batchQueue.GetConsumingEnumerable())
                 {
-                    //Mass And Intensity Lists 
-                    var scan = Scan.FromFile(rawFile, i);
-                    massListBuilder.Append();
-                    intensityListBuilder.Append();
-                    for (int j = 0; j < scan.CentroidScan.Length; j++)
+                    pendingBatches[item.Index] = item.Batch;
+                    while (pendingBatches.TryGetValue(nextIndex, out var readyBatch))
                     {
-                        massValueBuilder?.Append((float)scan.CentroidScan.Masses[j]);
-                        intensityValueBuilder?.Append((float)scan.CentroidScan.Intensities[j]);
+                        writer.WriteRecordBatch(readyBatch);
+                        pendingBatches.Remove(nextIndex);
+                        nextIndex++;
                     }
-                    //Scan Number
-                    scanHeaderBuilder.Append(rawFile.GetFilterForScanNumber(i).ToString());
-                    scanNumberBuilder.Append(i);
+                }
 
-                    //Scan Stats Fields 
-                    var scanStats = rawFile.GetScanStatsForScanNumber(i);
-                    basePeakMzBuilder.Append((float)scanStats.BasePeakMass);
-                    packetTypeBuilder.Append(scanStats.PacketType);
-                    basePeakIntensityBuilder.Append((float)scanStats.BasePeakIntensity);
-                    retentionTimeBuilder.Append((float)scanStats.StartTime);
-                    lowMzBuilder.Append((float)scanStats.LowMass);
-                    highMzBuilder.Append((float)scanStats.HighMass);
-                    ticBuilder.Append((float)scanStats.TIC);
+                while (pendingBatches.TryGetValue(nextIndex, out var remainingBatch))
+                {
+                    writer.WriteRecordBatch(remainingBatch);
+                    pendingBatches.Remove(nextIndex);
+                    nextIndex++;
+                }
+            });
 
-                    //Scan Event Fields 
-                    var scanEvent = rawFile.GetScanEventForScanNumber(i);
-                    var trailerData = rawFile.GetTrailerExtraInformation(i);
-                    if ((byte)scanEvent.MSOrder > 1)
+            Parallel.ForEach(
+                batchRanges,
+                new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                batchRange =>
+                {
+                    using var workerFile = threadManager.CreateThreadAccessor();
+                    workerFile.SelectInstrument(Device.MS, 1);
+
+                    System.UInt64 batch_n_peaks = 0;
+                    for (int i = batchRange.Start; i <= batchRange.End; i++)
                     {
-                        centerMzBuilder.Append((float)scanEvent.GetMass(0));
-                        isolationWidthMzBuilder.Append((float)scanEvent.GetIsolationWidth(0) + (float)scanEvent.GetIsolationWidthOffset(0));
-                        collisionEnergyBuilder.Append((float)scanEvent.GetEnergy(0));
-                        
-                        //Extra information fields. Useful for eV collision energy values
-                        float ev = -1.0f;
-                        for (int j = 0; j < trailerData.Length; j++)
-                        {
-                            if (trailerData.Labels[j] == "HCD Energy V:")
-                            {
-                                string energyValue = trailerData.Values[j].Trim();
+                        batch_n_peaks += (ulong)workerFile.GetScanStatsForScanNumber(i)!.PacketCount;
+                    }
 
-                                // Check if this is a comma-delimited list (stepped NCE)
-                                if (energyValue.Contains(','))
+                    var massListBuilder = new ListArray.Builder(FloatType.Default);
+                    var massValueBuilder = massListBuilder.ValueBuilder as FloatArray.Builder;
+                    var intensityListBuilder = new ListArray.Builder(FloatType.Default);
+                    var intensityValueBuilder = intensityListBuilder.ValueBuilder as FloatArray.Builder;
+                    var scanHeaderBuilder = new StringArray.Builder();
+                    var scanNumberBuilder = new Int32Array.Builder();
+                    var basePeakMzBuilder = new FloatArray.Builder();
+                    var basePeakIntensityBuilder = new FloatArray.Builder();
+                    var packetTypeBuilder = new Int32Array.Builder();
+                    var retentionTimeBuilder = new FloatArray.Builder();
+                    var lowMzBuilder = new FloatArray.Builder();
+                    var highMzBuilder = new FloatArray.Builder();
+                    var ticBuilder = new FloatArray.Builder();
+                    var centerMzBuilder = new FloatArray.Builder();
+                    var isolationWidthMzBuilder = new FloatArray.Builder();
+                    var collisionEnergyBuilder = new FloatArray.Builder();
+                    var collisionEnergyEvBuilder = new FloatArray.Builder();
+                    var msOrderBuilder = new UInt8Array.Builder();
+
+                    int batchCount = batchRange.End - batchRange.Start + 1;
+                    massListBuilder.Reserve(batchCount);
+                    intensityListBuilder.Reserve(batchCount);
+                    scanNumberBuilder.Reserve(batchCount);
+                    basePeakMzBuilder.Reserve(batchCount);
+                    basePeakIntensityBuilder.Reserve(batchCount);
+                    packetTypeBuilder.Reserve(batchCount);
+                    retentionTimeBuilder.Reserve(batchCount);
+                    lowMzBuilder.Reserve(batchCount);
+                    highMzBuilder.Reserve(batchCount);
+                    ticBuilder.Reserve(batchCount);
+                    centerMzBuilder.Reserve(batchCount);
+                    isolationWidthMzBuilder.Reserve(batchCount);
+                    collisionEnergyBuilder.Reserve(batchCount);
+                    collisionEnergyEvBuilder.Reserve(batchCount);
+                    msOrderBuilder.Reserve(batchCount);
+                    massValueBuilder?.Reserve((int)batch_n_peaks);
+                    intensityValueBuilder?.Reserve((int)batch_n_peaks);
+
+                    for (int i = batchRange.Start; i <= batchRange.End; i++)
+                    {
+                        var scan = Scan.FromFile(workerFile, i);
+                        massListBuilder.Append();
+                        intensityListBuilder.Append();
+                        for (int j = 0; j < scan.CentroidScan.Length; j++)
+                        {
+                            massValueBuilder?.Append((float)scan.CentroidScan.Masses[j]);
+                            intensityValueBuilder?.Append((float)scan.CentroidScan.Intensities[j]);
+                        }
+                        scanHeaderBuilder.Append(workerFile.GetFilterForScanNumber(i).ToString());
+                        scanNumberBuilder.Append(i);
+
+                        var scanStats = workerFile.GetScanStatsForScanNumber(i);
+                        basePeakMzBuilder.Append((float)scanStats.BasePeakMass);
+                        packetTypeBuilder.Append(scanStats.PacketType);
+                        basePeakIntensityBuilder.Append((float)scanStats.BasePeakIntensity);
+                        retentionTimeBuilder.Append((float)scanStats.StartTime);
+                        lowMzBuilder.Append((float)scanStats.LowMass);
+                        highMzBuilder.Append((float)scanStats.HighMass);
+                        ticBuilder.Append((float)scanStats.TIC);
+
+                        var scanEvent = workerFile.GetScanEventForScanNumber(i);
+                        var trailerData = workerFile.GetTrailerExtraInformation(i);
+                        if ((byte)scanEvent.MSOrder > 1)
+                        {
+                            centerMzBuilder.Append((float)scanEvent.GetMass(0));
+                            isolationWidthMzBuilder.Append((float)scanEvent.GetIsolationWidth(0) + (float)scanEvent.GetIsolationWidthOffset(0));
+                            collisionEnergyBuilder.Append((float)scanEvent.GetEnergy(0));
+
+                            float ev = -1.0f;
+                            for (int j = 0; j < trailerData.Length; j++)
+                            {
+                                if (trailerData.Labels[j] == "HCD Energy V:")
                                 {
-                                    // Parse comma-delimited values and calculate mean
-                                    string[] energyValues = energyValue.Split(',');
-                                    float sum = 0.0f;
-                                    int count = 0;
-                                    foreach (string value in energyValues)
+                                    string energyValue = trailerData.Values[j].Trim();
+
+                                    if (energyValue.Contains(','))
                                     {
-                                        if (float.TryParse(value.Trim(), out float parsedValue))
+                                        string[] energyValues = energyValue.Split(',');
+                                        float sum = 0.0f;
+                                        int count = 0;
+                                        foreach (string value in energyValues)
                                         {
-                                            sum += parsedValue;
-                                            count++;
+                                            if (float.TryParse(value.Trim(), out float parsedValue))
+                                            {
+                                                sum += parsedValue;
+                                                count++;
+                                            }
+                                        }
+                                        if (count > 0)
+                                        {
+                                            ev = sum / count;
                                         }
                                     }
-                                    if (count > 0)
+                                    else
                                     {
-                                        ev = sum / count;
+                                        if (float.TryParse(energyValue, out float parsedValue))
+                                        {
+                                            ev = parsedValue;
+                                        }
                                     }
+                                    break;
                                 }
-                                else
-                                {
-                                    // Single value
-                                    if (float.TryParse(energyValue, out float parsedValue))
-                                    {
-                                        ev = parsedValue;
-                                    }
-                                }
-                                break;
+                            }
+                            if (ev < 0)
+                            {
+                                collisionEnergyEvBuilder.AppendNull();
+                            }
+                            else
+                            {
+                                collisionEnergyEvBuilder.Append((float)ev);
                             }
                         }
-                        if (ev < 0)
+                        else
                         {
+                            centerMzBuilder.AppendNull();
+                            isolationWidthMzBuilder.AppendNull();
+                            collisionEnergyBuilder.AppendNull();
                             collisionEnergyEvBuilder.AppendNull();
-                        } else
-                        {
-                            collisionEnergyEvBuilder.Append((float)ev);
                         }
 
-                    } else{
-                        centerMzBuilder.AppendNull();
-                        isolationWidthMzBuilder.AppendNull();
-                        collisionEnergyBuilder.AppendNull();
-                        collisionEnergyEvBuilder.AppendNull();
+                        msOrderBuilder.Append((byte)scanEvent.MSOrder);
                     }
 
-                    msOrderBuilder.Append((byte)scanEvent.MSOrder);
+                    var massArray = massListBuilder.Build();
+                    var intensityArray = intensityListBuilder.Build();
+                    IArrowArray scanHeaderArray = scanHeaderBuilder.Build();
+                    IArrowArray scanNumberArray = scanNumberBuilder.Build();
+                    IArrowArray basePeakMzArray = basePeakMzBuilder.Build();
+                    IArrowArray basePeakIntensityArray = basePeakIntensityBuilder.Build();
+                    IArrowArray packetTypeArray = packetTypeBuilder.Build();
+                    IArrowArray retentionTimeArray = retentionTimeBuilder.Build();
+                    IArrowArray lowMzArray = lowMzBuilder.Build();
+                    IArrowArray highMzArray = highMzBuilder.Build();
+                    IArrowArray ticArray = ticBuilder.Build();
+                    IArrowArray centerMzArray = centerMzBuilder.Build();
+                    IArrowArray isolationWidthMzArray = isolationWidthMzBuilder.Build();
+                    IArrowArray collisionEnergyArray = collisionEnergyBuilder.Build();
+                    IArrowArray collisionEnergyEvArray = collisionEnergyEvBuilder.Build();
+                    IArrowArray msOrderArray = msOrderBuilder.Build();
+                    var recordBatch = new RecordBatch(schema, new[]
+                    {
+                        massArray,
+                        intensityArray,
+                        scanHeaderArray,
+                        scanNumberArray,
+                        basePeakMzArray,
+                        basePeakIntensityArray,
+                        packetTypeArray,
+                        retentionTimeArray,
+                        lowMzArray,
+                        highMzArray,
+                        ticArray,
+                        centerMzArray,
+                        isolationWidthMzArray,
+                        collisionEnergyArray,
+                        collisionEnergyEvArray,
+                        msOrderArray
+                    }, batchCount);
 
+                    batchQueue.Add((batchRange.Index, recordBatch));
+                });
 
-
-                }
-
-                //Write Batch
-                var massArray = massListBuilder.Build();
-                var intensityArray = intensityListBuilder.Build();
-                IArrowArray scanHeaderArray = scanHeaderBuilder.Build();
-                IArrowArray scanNumberArray = scanNumberBuilder.Build();
-                IArrowArray basePeakMzArray = basePeakMzBuilder.Build();
-                IArrowArray basePeakIntensityArray = basePeakIntensityBuilder.Build();
-                IArrowArray packetTypeArray = packetTypeBuilder.Build();
-                IArrowArray retentionTimeArray = retentionTimeBuilder.Build();
-                IArrowArray lowMzArray = lowMzBuilder.Build();
-                IArrowArray highMzArray = highMzBuilder.Build();
-                IArrowArray ticArray = ticBuilder.Build();
-                IArrowArray centerMzArray = centerMzBuilder.Build();
-                IArrowArray isolationWidthMzArray = isolationWidthMzBuilder.Build();
-                IArrowArray collisionEnergyArray = collisionEnergyBuilder.Build();
-                IArrowArray collisionEnergyEvArray = collisionEnergyEvBuilder.Build();
-                IArrowArray msOrderArray = msOrderBuilder.Build();
-                //var scanHeader = scanHeaderBuilder.Build();
-                var recordBatch = new RecordBatch(schema, new[] { 
-                    massArray, 
-                    intensityArray, 
-                    scanHeaderArray,
-                    scanNumberArray,
-                    basePeakMzArray,
-                    basePeakIntensityArray,
-                    packetTypeArray,
-                    retentionTimeArray,
-                    lowMzArray,
-                    highMzArray,
-                    ticArray,
-                    centerMzArray,
-                    isolationWidthMzArray,
-                    collisionEnergyArray,
-                    collisionEnergyEvArray,
-                    msOrderArray }, batchEnd - batchStart + 1);
-                writer.WriteRecordBatch(recordBatch);
-            }
+            batchQueue.CompleteAdding();
+            writerTask.Wait();
             writer.WriteEndAsync().Wait(); // Finish the Arrow file
         }
         watch.Stop();
         Console.WriteLine("Execution Time: {0} ms for {1}", watch.ElapsedMilliseconds, Path.GetFileNameWithoutExtension(inputFile));
-        rawFile.Dispose();
     }
 }
