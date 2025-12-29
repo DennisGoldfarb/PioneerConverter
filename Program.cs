@@ -166,7 +166,16 @@ internal static class Program
         //var myThreadManager = RawFileReaderFactory.CreateThreadManager("/Users/n.t.wamsley/Desktop/20230324_OLEP08_200ng_30min_E20H50Y30_180K_2Th3p5ms_02.raw");
         //var rawFile = myThreadManager.CreateThreadAccessor();
         Console.WriteLine("Starting Conversion For: {0}", Path.GetFileNameWithoutExtension(inputFile));
-        var rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+        IRawDataExtended rawFile;
+        try
+        {
+            rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error opening ({0}) - {1}", ex.Message, inputFile);
+            return;
+        }
         if (!rawFile.IsOpen || rawFile.IsError)
         {
             // Check for any errors in the RAW file
@@ -359,10 +368,22 @@ internal static class Program
                     var scan = Scan.FromFile(rawFile, i);
                     massListBuilder.Append();
                     intensityListBuilder.Append();
-                    for (int j = 0; j < scan.CentroidScan.Length; j++)
+                    var masses = scan.CentroidScan.Masses;
+                    var intensities = scan.CentroidScan.Intensities;
+                    if (massValueBuilder != null && intensityValueBuilder != null)
                     {
-                        massValueBuilder?.Append((float)scan.CentroidScan.Masses[j]);
-                        intensityValueBuilder?.Append((float)scan.CentroidScan.Intensities[j]);
+                        if (masses != null && intensities != null)
+                        {
+                            var massValues = System.Array.ConvertAll(masses, static value => (float)value);
+                            var intensityValues = System.Array.ConvertAll(intensities, static value => (float)value);
+                            massValueBuilder.AppendRange(massValues);
+                            intensityValueBuilder.AppendRange(intensityValues);
+                        }
+                        else
+                        {
+                            massValueBuilder.AppendRange(System.Array.Empty<float>());
+                            intensityValueBuilder.AppendRange(System.Array.Empty<float>());
+                        }
                     }
                     //Scan Number
                     scanHeaderBuilder.Append(rawFile.GetFilterForScanNumber(i).ToString());
