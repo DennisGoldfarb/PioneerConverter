@@ -305,9 +305,12 @@ internal static class Program
                 int batchEnd = Math.Min(batchStart + batchSize - 1, totalScans);
                 //Get Number of Mass Peaks in the Batch (used for pre-allocation)
                 System.UInt64 batch_n_peaks = 0;
+                var batchStats = new List<IScanStats>(batchEnd - batchStart + 1);
                 for (int i = batchStart; i <= batchEnd; i++)
                 {
-                    batch_n_peaks += (ulong)rawFile.GetScanStatsForScanNumber(i)!.PacketCount;
+                    var scanStats = rawFile.GetScanStatsForScanNumber(i)!;
+                    batch_n_peaks += (ulong)scanStats.PacketCount;
+                    batchStats.Add(scanStats);
                 }
                 //batch_n_peaks = (int)batch_n_peaks;
                 //Mass and Intensity Lists
@@ -369,7 +372,7 @@ internal static class Program
                     scanNumberBuilder.Append(i);
 
                     //Scan Stats Fields 
-                    var scanStats = rawFile.GetScanStatsForScanNumber(i);
+                    var scanStats = batchStats[i - batchStart];
                     basePeakMzBuilder.Append((float)scanStats.BasePeakMass);
                     packetTypeBuilder.Append(scanStats.PacketType);
                     basePeakIntensityBuilder.Append((float)scanStats.BasePeakIntensity);
