@@ -363,8 +363,8 @@ internal static class Program
                     var intensities = scan.CentroidScan.Intensities;
                     if (massValueBuilder != null && intensityValueBuilder != null)
                     {
-                        var massValues = Array.ConvertAll(masses, static value => (float)value);
-                        var intensityValues = Array.ConvertAll(intensities, static value => (float)value);
+                        var massValues = System.Array.ConvertAll(masses, static value => (float)value);
+                        var intensityValues = System.Array.ConvertAll(intensities, static value => (float)value);
                         massValueBuilder.AppendRange(massValues);
                         intensityValueBuilder.AppendRange(intensityValues);
                     }
