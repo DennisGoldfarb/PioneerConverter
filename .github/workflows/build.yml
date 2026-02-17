@@ -11,7 +11,11 @@ on:
       - 'v*'
 
 jobs:
+  validate:
+    uses: ./.github/workflows/reusable-validate-binaries.yml
+
   build:
+    needs: validate
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -244,4 +248,3 @@ jobs:
             name="$base"
             gh release upload "$tag" "$file#$name" --clobber
           done
-

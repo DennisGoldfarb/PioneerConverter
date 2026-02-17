@@ -49,6 +49,17 @@ Options
    ./build.sh          # or ./build.sh macos|linux|windows
    ```
 
+## CI validation
+
+GitHub Actions validates published binaries in `validate-binaries.yml` across:
+
+- Linux x64
+- Windows x64
+- macOS Intel (x64)
+- macOS Apple Silicon (arm64)
+
+Validation always checks binary startup and runs conversion smoke tests using
+`tests/fixtures/raw/smoke.raw`.
 
 ## Output format
 

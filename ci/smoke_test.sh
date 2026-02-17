@@ -1,0 +1,41 @@
+#!/bin/bash
+set -euo pipefail
+
+PUBLISH_DIR="${1:?publish directory is required}"
+FIXTURE_PATH="${2:?fixture path is required}"
+EXECUTABLE="${PUBLISH_DIR}/PioneerConverter"
+
+if [[ ! -x "${EXECUTABLE}" ]]; then
+    echo "Expected executable not found: ${EXECUTABLE}" >&2
+    exit 1
+fi
+
+echo "Running startup check"
+"${EXECUTABLE}" >/tmp/pioneerconverter-startup.log 2>&1
+
+if [[ ! -f "${FIXTURE_PATH}" ]]; then
+    echo "Fixture missing: ${FIXTURE_PATH}" >&2
+    exit 1
+fi
+
+if [[ ! -s "${FIXTURE_PATH}" ]]; then
+    echo "Fixture is empty, skipping conversion smoke test: ${FIXTURE_PATH}"
+    exit 0
+fi
+
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+TMP_FIXTURE="${TMP_DIR}/smoke.raw"
+cp "${FIXTURE_PATH}" "${TMP_FIXTURE}"
+
+echo "Running conversion smoke test"
+"${EXECUTABLE}" "${TMP_FIXTURE}" -b 50 -n 1
+
+OUTPUT_FILE="${TMP_DIR}/arrow_out/smoke.arrow"
+if [[ ! -s "${OUTPUT_FILE}" ]]; then
+    echo "Expected output file missing or empty: ${OUTPUT_FILE}" >&2
+    exit 1
+fi
+
+echo "Smoke test passed"
