@@ -11,8 +11,9 @@ print_step() {
 TARGET_OS="${1:-all}"
 SKIP_MAC_ZIPS="${SKIP_MAC_ZIPS:-0}"
 
-# Determine version from env or latest Git tag
-VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
+# Determine version from env or latest Git tag.
+# Disable lazy-fetch so CI never attempts remote auth from this lookup.
+VERSION="${VERSION:-$(GIT_NO_LAZY_FETCH=1 git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
 VERSION="${VERSION#v}"
 VERSION="$(echo "$VERSION" | tr -d '\n')"
 

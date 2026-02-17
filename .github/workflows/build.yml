@@ -10,6 +10,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   validate:
     uses: ./.github/workflows/reusable-validate-binaries.yml
@@ -22,9 +25,14 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 1
+          submodules: false
+          lfs: false
 
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
@@ -106,6 +114,7 @@ jobs:
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           PKG_SIGN_IDENTITY: ${{ secrets.PKG_SIGN_IDENTITY }}
           VERSION: ${{ github.event.inputs.tag }}
+          GIT_NO_LAZY_FETCH: 1
 
       - name: Notarize macOS package
         if: matrix.os == 'macos-latest'
@@ -205,7 +214,12 @@ jobs:
     env:
       TAG_NAME: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 1
+          submodules: false
+          lfs: false
 
       - uses: actions/download-artifact@v4
         with:

@@ -3,10 +3,17 @@ name: Reusable Binary Validation
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: Validate ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
+    env:
+      GIT_NO_LAZY_FETCH: 1
+      GIT_TERMINAL_PROMPT: 0
+      GCM_INTERACTIVE: Never
     strategy:
       fail-fast: false
       matrix:
@@ -27,6 +34,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 1
+          submodules: false
+          lfs: false
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -39,6 +51,7 @@ jobs:
             -r "${{ matrix.rid }}" \
             -p:PublishSingleFile=false \
             -p:PublishTrimmed=false \
+            -p:EnableSourceControlManagerQueries=false \
             --self-contained true \
             -o "dist/${{ matrix.rid }}"
         shell: bash
