@@ -114,6 +114,7 @@ jobs:
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           PKG_SIGN_IDENTITY: ${{ secrets.PKG_SIGN_IDENTITY }}
           VERSION: ${{ github.event.inputs.tag }}
+          GIT_NO_LAZY_FETCH: 1
 
       - name: Notarize macOS package
         if: matrix.os == 'macos-latest'

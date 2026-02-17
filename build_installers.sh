@@ -18,8 +18,9 @@ case "$OS" in
         ;;
 esac
 
-# Determine version from env or latest Git tag
-VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
+# Determine version from env or latest Git tag.
+# Disable lazy-fetch so CI never attempts remote auth from this lookup.
+VERSION="${VERSION:-$(GIT_NO_LAZY_FETCH=1 git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")}"
 # Remove a leading 'v' and any trailing newline
 VERSION="${VERSION#v}"
 VERSION="$(echo "$VERSION" | tr -d '\n')"
@@ -51,4 +52,3 @@ case "$TARGET" in
         popd > /dev/null
         ;;
 esac
-
