@@ -1,0 +1,13 @@
+name: Validate Binaries
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  validate:
+    uses: ./.github/workflows/reusable-validate-binaries.yml
