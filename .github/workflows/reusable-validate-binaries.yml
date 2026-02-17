@@ -1,0 +1,59 @@
+name: Reusable Binary Validation
+
+on:
+  workflow_call:
+
+jobs:
+  validate:
+    name: Validate ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            runner: ubuntu-latest
+            rid: linux-x64
+          - name: Windows x64
+            runner: windows-latest
+            rid: win-x64
+          - name: macOS Intel
+            runner: macos-15-intel
+            rid: osx-x64
+          - name: macOS Apple Silicon
+            runner: macos-15
+            rid: osx-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish target binary
+        run: |
+          dotnet publish PioneerConverter.csproj -c Release \
+            -r "${{ matrix.rid }}" \
+            -p:PublishSingleFile=false \
+            -p:PublishTrimmed=false \
+            --self-contained true \
+            -o "dist/${{ matrix.rid }}"
+        shell: bash
+
+      - name: Mark binary executable
+        if: runner.os != 'Windows'
+        run: chmod +x "dist/${{ matrix.rid }}/PioneerConverter"
+        shell: bash
+
+      - name: Smoke test binary (Unix)
+        if: runner.os != 'Windows'
+        run: ./ci/smoke_test.sh "dist/${{ matrix.rid }}" "tests/fixtures/raw/smoke.raw"
+        shell: bash
+
+      - name: Smoke test binary (Windows)
+        if: runner.os == 'Windows'
+        run: ./ci/smoke_test.ps1 -PublishDir "dist/${{ matrix.rid }}" -FixturePath "tests/fixtures/raw/smoke.raw"
+        shell: pwsh
