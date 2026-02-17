@@ -35,7 +35,7 @@ jobs:
 
       - name: Publish target binary
         run: |
-          dotnet publish -c Release \
+          dotnet publish PioneerConverter.csproj -c Release \
             -r "${{ matrix.rid }}" \
             -p:PublishSingleFile=false \
             -p:PublishTrimmed=false \
