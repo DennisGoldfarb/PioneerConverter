@@ -3,6 +3,9 @@ name: Reusable Binary Validation
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: Validate ${{ matrix.name }}
@@ -27,6 +30,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 1
+          submodules: false
+          lfs: false
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
