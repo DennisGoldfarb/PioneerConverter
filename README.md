@@ -34,6 +34,9 @@ PioneerConverter path/to/dir -o path/to/output
 
 # incremental conversion: only process new .raw files
 PioneerConverter path/to/dir --skip-existing
+
+# print converter version
+PioneerConverter --version
 ```
 
 Options
@@ -43,6 +46,7 @@ Options
 - `-n, --concurrent-files` number of files to convert at the same time (default: 2)
 - `-t, --threads-per-file` scan extraction threads used for each file (default: 3)
 - `--scan-chunk-size` scan chunk size when using scan threads (default: 128)
+- `--version` show program version
 - `-h, --help`        show help
 
 ## Build from source

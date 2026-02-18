@@ -4,6 +4,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 
 using ThermoFisher.CommonCore.BackgroundSubtraction;
@@ -20,29 +21,60 @@ using Apache.Arrow.Memory;
 using Apache.Arrow.Types;
 
 // Then class declarations
+internal static class AppMetadata
+{
+    public const string AppName = "PioneerConverter";
+    private const string DefaultVersion = "0.0.0-dev";
+    private static readonly Lazy<string> VersionProvider = new Lazy<string>(ResolveVersion);
+
+    public static string Version => VersionProvider.Value;
+
+    private static string ResolveVersion()
+    {
+        Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        string? informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
+
+        if (!string.IsNullOrWhiteSpace(informationalVersion))
+        {
+            return NormalizeVersion(informationalVersion);
+        }
+
+        string? assemblyVersion = assembly.GetName().Version?.ToString();
+        return string.IsNullOrWhiteSpace(assemblyVersion) ? DefaultVersion : NormalizeVersion(assemblyVersion);
+    }
+
+    private static string NormalizeVersion(string value)
+    {
+        int metadataSeparatorIndex = value.IndexOf('+');
+        return metadataSeparatorIndex >= 0 ? value.Substring(0, metadataSeparatorIndex) : value;
+    }
+}
+
 public class Options
 {
     public string RawPath { get; set; } = string.Empty;
     public string OutputDir { get; set; } = string.Empty;
     public bool SkipExisting { get; set; } = false;
+    public bool ShouldShowHelp { get; set; } = false;
+    public bool ShouldShowVersion { get; set; } = false;
     public int BatchSize { get; set; } = 10000;
     public int ConcurrentFiles { get; set; } = 2;
     public int ThreadsPerFile { get; set; } = 3;
     public int ScanChunkSize { get; set; } = 128;
-
+	
     public static Options ParseArguments(string[] args)
     {
         var options = new Options();
         
         if (args.Length == 0)
         {
-            ShowHelp();
+            options.ShouldShowHelp = true;
             return options;
         }
 
-        options.RawPath = args[0];
-
-        for (int i = 1; i < args.Length; i++)
+        for (int i = 0; i < args.Length; i++)
         {
             switch (args[i])
             {
@@ -52,12 +84,24 @@ public class Options
                     {
                         options.BatchSize = batchSize;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
                     break;
                 case "-o":
                 case "--output-dir":
                     if (i + 1 < args.Length)
                     {
                         options.OutputDir = args[++i];
+                    }
+                    else
+                    {
+                        Console.WriteLine("Missing value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
                     }
                     break;
                 case "--skip-existing":
@@ -69,6 +113,12 @@ public class Options
                     {
                         options.ConcurrentFiles = concurrentFiles;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
                     break;
                 case "-t":
                 case "--threads-per-file":
@@ -76,26 +126,62 @@ public class Options
                     {
                         options.ThreadsPerFile = threadsPerFile;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
                     break;
                 case "--scan-chunk-size":
                     if (i + 1 < args.Length && int.TryParse(args[++i], out int scanChunkSize))
                     {
                         options.ScanChunkSize = scanChunkSize;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+                    break;
+                case "--version":
+                    options.ShouldShowVersion = true;
                     break;
                 case "-h":
                 case "--help":
-                    ShowHelp();
-                    return options;
+                    options.ShouldShowHelp = true;
+                    break;
+                default:
+                    if (args[i].StartsWith("-", StringComparison.Ordinal))
+                    {
+                        Console.WriteLine("Unknown option: {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+
+                    if (string.IsNullOrEmpty(options.RawPath))
+                    {
+                        options.RawPath = args[i];
+                    }
+                    else
+                    {
+                        Console.WriteLine("Unexpected argument: {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+                    break;
             }
         }
-
+	
         return options;
     }
-
-    private static void ShowHelp()
+	
+    public static void ShowHelp()
     {
-        Console.WriteLine("Usage: PioneerConverter RAW_PATH [options]");
+        Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+        Console.WriteLine();
+        Console.WriteLine($"Usage: {AppMetadata.AppName} RAW_PATH [options]");
         Console.WriteLine();
         Console.WriteLine("Arguments:");
         Console.WriteLine("  RAW_PATH                   Path to .raw file or directory containing .raw files");
@@ -107,6 +193,7 @@ public class Options
         Console.WriteLine("  -n, --concurrent-files <n> Number of files to convert at the same time (default: 2)");
         Console.WriteLine("  -t, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
         Console.WriteLine("      --scan-chunk-size <n>  Scan chunk size for scan-thread mode (default: 128)");
+        Console.WriteLine("      --version              Show version information");
         Console.WriteLine("  -h, --help                 Show help information");
     }
 }
@@ -120,10 +207,26 @@ internal static class Program
     {
         var options = Options.ParseArguments(args);
 
-        if (string.IsNullOrEmpty(options.RawPath))
+        if (options.ShouldShowVersion)
         {
+            Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
             return;
         }
+
+        if (options.ShouldShowHelp)
+        {
+            Options.ShowHelp();
+            return;
+        }
+	
+        if (string.IsNullOrEmpty(options.RawPath))
+        {
+            Console.WriteLine("Missing required RAW_PATH argument.");
+            Options.ShowHelp();
+            return;
+        }
+
+        Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
 
         options.BatchSize = Math.Max(1, options.BatchSize);
         options.ConcurrentFiles = Math.Max(1, options.ConcurrentFiles);
