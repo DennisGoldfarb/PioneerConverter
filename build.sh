@@ -24,8 +24,7 @@ build_macos() {
     print_step "Building for macOS ARM64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-arm64 \
-      -p:PublishSingleFile=true \
-      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishSingleFile=false \
       -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
@@ -37,8 +36,7 @@ build_macos() {
     print_step "Building for macOS x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-x64 \
-      -p:PublishSingleFile=true \
-      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishSingleFile=false \
       -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
@@ -49,11 +47,6 @@ build_macos() {
 
     chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
     chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
-
-    mkdir -p dist/PioneerConverter-osx-arm64/bin
-    mkdir -p dist/PioneerConverter-osx-x64/bin
-    mv dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-arm64/bin/
-    mv dist/PioneerConverter-osx-x64/PioneerConverter dist/PioneerConverter-osx-x64/bin/
 }
 
 build_linux() {

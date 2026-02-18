@@ -329,12 +329,35 @@ internal static class Program
         float[] intensityScratchBuffer = System.Array.Empty<float>();
         if (scanThreads > 1)
         {
-            scanThreadManager = RawFileReaderFactory.CreateThreadManager(inputFile);
-            scanWorkers = CreateScanWorkers(scanThreadManager, scanThreads);
-            scanParallelOptions = new ParallelOptions
+            try
             {
-                MaxDegreeOfParallelism = scanWorkers.Count
-            };
+                scanThreadManager = RawFileReaderFactory.CreateThreadManager(inputFile);
+                scanWorkers = CreateScanWorkers(scanThreadManager, scanThreads);
+                scanParallelOptions = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = scanWorkers.Count
+                };
+            }
+            catch (Exception ex)
+            {
+                if (scanWorkers != null)
+                {
+                    foreach (var worker in scanWorkers)
+                    {
+                        worker.Dispose();
+                    }
+                }
+
+                scanThreadManager?.Dispose();
+                scanWorkers = null;
+                scanThreadManager = null;
+                scanParallelOptions = null;
+                Console.WriteLine(
+                    "Warning: scan-thread mode unavailable for {0} ({1}: {2}). Falling back to single-thread scan extraction.",
+                    Path.GetFileNameWithoutExtension(inputFile),
+                    ex.GetType().Name,
+                    ex.Message);
+            }
         }
 
         using (var fileStream = new FileStream(
