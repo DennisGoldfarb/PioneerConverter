@@ -15,6 +15,8 @@ There are three ways to get **PioneerConverter**:
     - macOS&nbsp;Intel (x64)
     - Linux (x64)
     - Windows (x64). 
+
+   On Apple Silicon, Thermo RawFileReader is x64-only, so PioneerConverter runs via Rosetta 2.
 3. **Precompiled binaries** – Zipped binaries are available for Linux, macOS, and Windows. Each archive contains a `bin` directory with the `PioneerConverter` executable and a `lib` directory with its dependencies. Extract them anywhere and, on Linux or macOS, you may need to run `chmod +x bin/PioneerConverter` before executing.
 4. **Build from source** – If you prefer to build the tool yourself, follow the steps in the [Build from source](#build-from-source) section below.
 

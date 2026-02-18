@@ -23,18 +23,6 @@ mkdir -p dist
 build_macos() {
     rm -rf dist/PioneerConverter-osx-arm64 dist/PioneerConverter-osx-x64
 
-    print_step "Building for macOS ARM64"
-    dotnet publish PioneerConverter.csproj -c Release \
-      -r osx-arm64 \
-      -p:PublishSingleFile=false \
-      -p:PublishReadyToRun=false \
-      -p:PublishTrimmed=false \
-      -p:DebugType=None \
-      -p:DebugSymbols=false \
-      -p:Version="${VERSION}" \
-      --self-contained true \
-      -o dist/PioneerConverter-osx-arm64
-
     print_step "Building for macOS x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-x64 \
@@ -47,16 +35,14 @@ build_macos() {
       --self-contained true \
       -o dist/PioneerConverter-osx-x64
 
-    mkdir -p dist/PioneerConverter-osx-arm64/bin
     mkdir -p dist/PioneerConverter-osx-x64/bin
     # For non-single-file macOS publishes, the runtime payload must live with the executable.
-    find dist/PioneerConverter-osx-arm64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec mv {} dist/PioneerConverter-osx-arm64/bin/ \;
     find dist/PioneerConverter-osx-x64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec mv {} dist/PioneerConverter-osx-x64/bin/ \;
-    chmod +x dist/PioneerConverter-osx-arm64/bin/PioneerConverter
     chmod +x dist/PioneerConverter-osx-x64/bin/PioneerConverter
-    # Keep macOS release layout minimal: only bin/ and lib/
-    find dist/PioneerConverter-osx-arm64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec rm -rf {} +
-    find dist/PioneerConverter-osx-x64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec rm -rf {} +
+
+    # RawFileReader's .NET assemblies are x64-only on macOS. Ship the same x64 payload
+    # in the arm64 archive/package so Apple Silicon runs under Rosetta.
+    cp -R dist/PioneerConverter-osx-x64 dist/PioneerConverter-osx-arm64
 }
 
 build_linux() {
