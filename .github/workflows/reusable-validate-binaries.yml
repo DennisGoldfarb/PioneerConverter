@@ -70,6 +70,7 @@ jobs:
           dotnet publish PioneerConverter.csproj -c Release \
             -r "${{ matrix.rid }}" \
             -p:PublishSingleFile=false \
+            -p:PublishReadyToRun=false \
             -p:PublishTrimmed=false \
             -p:EnableSourceControlManagerQueries=false \
             -p:Version="${VERSION}" \
