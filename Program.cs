@@ -58,7 +58,7 @@ public class Options
                         options.ConcurrentFiles = concurrentFiles;
                     }
                     break;
-                case "-s":
+                case "-t":
                 case "--threads-per-file":
                     if (i + 1 < args.Length && int.TryParse(args[++i], out int threadsPerFile))
                     {
@@ -91,7 +91,7 @@ public class Options
         Console.WriteLine("Options:");
         Console.WriteLine("  -b, --batch-size <size>    Process this many scans in each batch (default: 10000)");
         Console.WriteLine("  -n, --concurrent-files <n> Number of files to convert at the same time (default: 2)");
-        Console.WriteLine("  -s, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
+        Console.WriteLine("  -t, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
         Console.WriteLine("      --scan-chunk-size <n>  Scan chunk size for scan-thread mode (default: 128)");
         Console.WriteLine("  -h, --help                 Show help information");
     }
