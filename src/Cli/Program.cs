@@ -8,6 +8,8 @@ internal static class Program
 {
     public static void Main(string[] args)
     {
+        AssemblyResolver.Register();
+
         ConversionOptions options = ArgumentParser.ParseArguments(args);
 
         if (options.ShouldShowVersion)
