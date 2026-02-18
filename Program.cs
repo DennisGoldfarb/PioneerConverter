@@ -24,8 +24,8 @@ public class Options
 {
     public string RawPath { get; set; } = string.Empty;
     public int BatchSize { get; set; } = 10000;
-    public int Threads { get; set; } = 2;
-    public int ScanThreads { get; set; } = 3;
+    public int ConcurrentFiles { get; set; } = 2;
+    public int ThreadsPerFile { get; set; } = 3;
     public int ScanChunkSize { get; set; } = 128;
 
     public static Options ParseArguments(string[] args)
@@ -52,17 +52,17 @@ public class Options
                     }
                     break;
                 case "-n":
-                case "--threads":
-                    if (i + 1 < args.Length && int.TryParse(args[++i], out int threads))
+                case "--concurrent-files":
+                    if (i + 1 < args.Length && int.TryParse(args[++i], out int concurrentFiles))
                     {
-                        options.Threads = threads;
+                        options.ConcurrentFiles = concurrentFiles;
                     }
                     break;
                 case "-s":
-                case "--scan-threads":
-                    if (i + 1 < args.Length && int.TryParse(args[++i], out int scanThreads))
+                case "--threads-per-file":
+                    if (i + 1 < args.Length && int.TryParse(args[++i], out int threadsPerFile))
                     {
-                        options.ScanThreads = scanThreads;
+                        options.ThreadsPerFile = threadsPerFile;
                     }
                     break;
                 case "--scan-chunk-size":
@@ -90,8 +90,8 @@ public class Options
         Console.WriteLine();
         Console.WriteLine("Options:");
         Console.WriteLine("  -b, --batch-size <size>    Process this many scans in each batch (default: 10000)");
-        Console.WriteLine("  -n, --threads <number>     Maximum number of threads to use (default: 2)");
-        Console.WriteLine("  -s, --scan-threads <num>   Threads per file for scan extraction (default: 3)");
+        Console.WriteLine("  -n, --concurrent-files <n> Number of files to convert at the same time (default: 2)");
+        Console.WriteLine("  -s, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
         Console.WriteLine("      --scan-chunk-size <n>  Scan chunk size for scan-thread mode (default: 128)");
         Console.WriteLine("  -h, --help                 Show help information");
     }
@@ -111,9 +111,11 @@ internal static class Program
         }
 
         options.BatchSize = Math.Max(1, options.BatchSize);
-        options.Threads = Math.Max(1, options.Threads);
-        options.ScanThreads = Math.Max(1, options.ScanThreads);
+        options.ConcurrentFiles = Math.Max(1, options.ConcurrentFiles);
+        options.ThreadsPerFile = Math.Max(1, options.ThreadsPerFile);
         options.ScanChunkSize = Math.Max(1, options.ScanChunkSize);
+
+        var totalExecutionWatch = Stopwatch.StartNew();
 
         string[] file_paths = GetFilePaths(options.RawPath);
         if (file_paths.Length == 0)
@@ -134,18 +136,21 @@ internal static class Program
 
         ParallelOptions parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = options.Threads
+            MaxDegreeOfParallelism = options.ConcurrentFiles
         };
 
-        Console.WriteLine($"BatchSize: {options.BatchSize}");
-        Console.WriteLine($"Threads: {options.Threads}");
-        Console.WriteLine($"ScanThreads: {options.ScanThreads}");
-        Console.WriteLine($"ScanChunkSize: {options.ScanChunkSize}");
+        Console.WriteLine($"concurrentFiles: {options.ConcurrentFiles}");
+        Console.WriteLine($"threadsPerFile: {options.ThreadsPerFile}");
+        Console.WriteLine($"scanChunkSize: {options.ScanChunkSize}");
+        Console.WriteLine($"batchSize: {options.BatchSize}");
 
         Parallel.ForEach(Enumerable.Range(0, file_paths.Length), parallelOptions, fileIndex =>
         {
-            ProcessFile(file_paths[fileIndex], output_paths[fileIndex], options.BatchSize, options.ScanThreads, options.ScanChunkSize);
+            ProcessFile(file_paths[fileIndex], output_paths[fileIndex], options.BatchSize, options.ThreadsPerFile, options.ScanChunkSize);
         });
+
+        totalExecutionWatch.Stop();
+        Console.WriteLine("Total conversion time: {0:c} ({1} ms)", totalExecutionWatch.Elapsed, totalExecutionWatch.ElapsedMilliseconds);
     }
 
     public static string[] GetFilePaths(string raw_path)

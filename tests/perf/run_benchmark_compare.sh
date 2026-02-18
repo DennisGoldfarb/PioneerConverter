@@ -21,8 +21,8 @@ Options:
   --baseline-tag TAG       Baseline snapshot tag (default: ${BASELINE_TAG})
   --candidate-tag TAG      Candidate snapshot tag (default: timestamped tag)
   --batch-size N           Batch size passed to converter (default: ${BATCH_SIZE})
-  --threads N              Threads passed to converter (default: ${THREADS})
-  --scan-threads N         Intra-file scan threads passed to converter (optional)
+  --concurrent-files N     Number of files converted concurrently (default: ${THREADS})
+  --threads-per-file N     Scan extraction threads per file (optional)
   --refresh-baseline       Create the baseline snapshot in this run (fails if tag exists)
   -h, --help               Show this help
 EOF
@@ -42,11 +42,11 @@ while [[ $# -gt 0 ]]; do
       BATCH_SIZE="${2:-}"
       shift 2
       ;;
-    --threads)
+    --concurrent-files)
       THREADS="${2:-}"
       shift 2
       ;;
-    --scan-threads)
+    --threads-per-file)
       SCAN_THREADS="${2:-}"
       shift 2
       ;;
@@ -80,7 +80,7 @@ cd "${REPO_ROOT}"
 
 SNAPSHOT_EXTRA_ARGS=()
 if [[ -n "${SCAN_THREADS}" ]]; then
-  SNAPSHOT_EXTRA_ARGS+=(--scan-threads "${SCAN_THREADS}")
+  SNAPSHOT_EXTRA_ARGS+=(--threads-per-file "${SCAN_THREADS}")
 fi
 
 echo "Building Release binary..."
