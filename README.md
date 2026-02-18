@@ -33,6 +33,8 @@ PioneerConverter path/to/dir -b 5000 -n 4
 Options
 - `-b, --batch-size`  number of scans per batch (default: 10000)
 - `-n, --threads`     threads to use (default: 2)
+- `-s, --scan-threads` threads per file for scan extraction (default: 3)
+- `--scan-chunk-size` scan chunk size when using scan threads (default: 128)
 - `-h, --help`        show help
 
 ## Build from source
