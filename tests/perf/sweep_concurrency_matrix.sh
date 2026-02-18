@@ -41,7 +41,7 @@ for cfg in "${CONFIGS[@]}"; do
   TAG="sweep_${RUN_ID}_n${THREADS}_s${SCAN_THREADS}_b${BATCH_SIZE}"
 
   echo "Running ${TAG} ..."
-  "${RUN_SNAPSHOT}" "${TAG}" "${BATCH_SIZE}" "${THREADS}" --scan-threads "${SCAN_THREADS}"
+  "${RUN_SNAPSHOT}" "${TAG}" "${BATCH_SIZE}" "${THREADS}" --threads-per-file "${SCAN_THREADS}"
 
   CANDIDATE_DIR="${REPO_ROOT}/tests/perf/results/${TAG}"
   CANDIDATE_SUMS="${CANDIDATE_DIR}/checksums.sha256"

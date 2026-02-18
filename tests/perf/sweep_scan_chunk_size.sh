@@ -31,7 +31,7 @@ CHUNK_SIZES=(128 256 512 1024 2048)
 for chunk_size in "${CHUNK_SIZES[@]}"; do
   tag="chunks_${RUN_ID}_n${THREADS}_s${SCAN_THREADS}_b${BATCH_SIZE}_c${chunk_size}"
   echo "Running ${tag} ..."
-  "${RUN_SNAPSHOT}" "${tag}" "${BATCH_SIZE}" "${THREADS}" --scan-threads "${SCAN_THREADS}" --scan-chunk-size "${chunk_size}"
+  "${RUN_SNAPSHOT}" "${tag}" "${BATCH_SIZE}" "${THREADS}" --threads-per-file "${SCAN_THREADS}" --scan-chunk-size "${chunk_size}"
 
   candidate_dir="${REPO_ROOT}/tests/perf/results/${tag}"
   candidate_sums="${candidate_dir}/checksums.sha256"
