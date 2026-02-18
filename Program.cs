@@ -150,7 +150,7 @@ internal static class Program
         });
 
         totalExecutionWatch.Stop();
-        Console.WriteLine("Total conversion time: {0:c} ({1} ms)", totalExecutionWatch.Elapsed, totalExecutionWatch.ElapsedMilliseconds);
+        Console.WriteLine("Total conversion time: {0}", FormatDuration(totalExecutionWatch.Elapsed));
     }
 
     public static string[] GetFilePaths(string raw_path)
@@ -887,6 +887,26 @@ internal static class Program
         }
 
         return float.TryParse(energyValue, out ev);
+    }
+
+    static string FormatDuration(TimeSpan elapsed)
+    {
+        if (elapsed.TotalHours >= 1)
+        {
+            return $"{(int)elapsed.TotalHours}h {elapsed.Minutes}m {elapsed.Seconds}s";
+        }
+
+        if (elapsed.TotalMinutes >= 1)
+        {
+            return $"{elapsed.Minutes}m {elapsed.Seconds}s";
+        }
+
+        if (elapsed.TotalSeconds >= 1)
+        {
+            return $"{elapsed.TotalSeconds:F1}s";
+        }
+
+        return $"{elapsed.TotalMilliseconds:F0}ms";
     }
 
 }
