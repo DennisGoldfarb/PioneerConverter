@@ -226,29 +226,43 @@ internal static class Program
             return;
         }
 
-        Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
-
         options.BatchSize = Math.Max(1, options.BatchSize);
         options.ConcurrentFiles = Math.Max(1, options.ConcurrentFiles);
         options.ThreadsPerFile = Math.Max(1, options.ThreadsPerFile);
         options.ScanChunkSize = Math.Max(1, options.ScanChunkSize);
-
+	
         var totalExecutionWatch = Stopwatch.StartNew();
 
-        string[] file_paths = GetFilePaths(options.RawPath);
-        if (file_paths.Length == 0)
+        bool rawPathIsFile = File.Exists(options.RawPath);
+        bool rawPathIsDirectory = Directory.Exists(options.RawPath);
+        if (!rawPathIsFile && !rawPathIsDirectory)
         {
-            Console.WriteLine("No .raw files found to process");
+            Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+            Console.WriteLine("File or Directory does not exist: {0}", options.RawPath);
             return;
         }
 
-        string? input_dir = Path.GetDirectoryName(file_paths[0]);
-        if (input_dir == null)
-        {   
-            Console.WriteLine("Invalid input directory");
-            return; 
+        string inputMode = rawPathIsDirectory ? "directory" : "file";
+        string input_dir;
+        if (rawPathIsDirectory)
+        {
+            input_dir = Path.GetFullPath(options.RawPath);
+        }
+        else
+        {
+            string inputFilePath = Path.GetFullPath(options.RawPath);
+            string? inputFileDirectory = Path.GetDirectoryName(inputFilePath);
+            if (inputFileDirectory == null)
+            {
+                Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+                Console.WriteLine("Invalid input directory");
+                return;
+            }
+
+            input_dir = inputFileDirectory;
         }
 
+        string[] file_paths = GetFilePaths(options.RawPath);
         string output_dir = buildOutputDir(input_dir, options.OutputDir);
         if (string.IsNullOrEmpty(output_dir))
         {
@@ -290,18 +304,26 @@ internal static class Program
             MaxDegreeOfParallelism = options.ConcurrentFiles
         };
 
-        Console.WriteLine($"concurrentFiles: {options.ConcurrentFiles}");
-        Console.WriteLine($"threadsPerFile: {options.ThreadsPerFile}");
-        Console.WriteLine($"scanChunkSize: {options.ScanChunkSize}");
-        Console.WriteLine($"batchSize: {options.BatchSize}");
-        Console.WriteLine($"outputDir: {output_dir}");
-        Console.WriteLine($"skipExisting: {options.SkipExisting}");
-        Console.WriteLine($"filesToConvert: {filesToConvert.Count}");
+        Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+        Console.WriteLine("==================================================");
+        Console.WriteLine($"Config: concurrent={options.ConcurrentFiles}  threads={options.ThreadsPerFile}  chunk={options.ScanChunkSize}  batch={options.BatchSize}");
+        Console.WriteLine($"Config: output={output_dir}");
+        Console.WriteLine($"Config: skip-existing={options.SkipExisting.ToString().ToLowerInvariant()}");
+        Console.WriteLine();
+        Console.WriteLine($"Input : {inputMode} {options.RawPath}");
+        Console.WriteLine($"Queue : discovered={file_paths.Length}  convert={filesToConvert.Count}");
         if (options.SkipExisting)
         {
-            Console.WriteLine($"skippedCompleteFiles: {skippedCompleteFiles}");
-            Console.WriteLine($"reconvertedIncompleteFiles: {reconvertedIncompleteFiles}");
-            Console.WriteLine($"missingOutputFiles: {missingOutputFiles}");
+            Console.WriteLine($"Queue : skipped-complete={skippedCompleteFiles}  reconvert-incomplete={reconvertedIncompleteFiles}  missing-output={missingOutputFiles}");
+        }
+        Console.WriteLine("==================================================");
+
+        if (file_paths.Length == 0)
+        {
+            totalExecutionWatch.Stop();
+            Console.WriteLine("No .raw files found to process");
+            Console.WriteLine("Total conversion time: {0}", FormatDuration(totalExecutionWatch.Elapsed));
+            return;
         }
 
         if (filesToConvert.Count == 0)
@@ -328,16 +350,13 @@ internal static class Program
 
         if (File.Exists(raw_path)) //Individual .raw file 
         {
-            Console.WriteLine("Converting: {0}", Path.GetFileNameWithoutExtension(raw_path));
-            file_paths = new string[] { raw_path };
+            file_paths = new string[] { Path.GetFullPath(raw_path) };
         } else if (Directory.Exists(raw_path)) //All .raw files in a directory
         {   
-            Console.WriteLine("Reading all .raw files from the directory: {0}", raw_path);
-            string directory_path = raw_path;
+            string directory_path = Path.GetFullPath(raw_path);
             file_paths = Directory.GetFiles(directory_path, "*.raw", SearchOption.TopDirectoryOnly);
         } else
         {
-            Console.WriteLine("File or Directory does not exist: {0}", raw_path);
             file_paths = new string[0];
         }
         return file_paths;
