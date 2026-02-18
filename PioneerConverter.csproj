@@ -1,14 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version Condition="'$(Version)' == ''">0.0.0-dev</Version>
+    <InformationalVersion>$(Version)</InformationalVersion>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <!-- Add rpath to look in the same directory -->
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src/Cli/**/*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ThermoFisher.CommonCore.BackgroundSubtraction">
@@ -33,25 +38,25 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Copy runtime libraries only -->
+  <ItemGroup>
+    <ProjectReference Include="PioneerConverter.Core.csproj" />
+    <ProjectReference Include="PioneerConverter.Infrastructure.Thermo.csproj" />
+  </ItemGroup>
+
   <Target Name="CopyAllFiles" BeforeTargets="Build">
     <ItemGroup>
-      <!-- Include managed and native libraries but skip docs and packages -->
       <LibFiles Include="Libs\**\*.dll;Libs\**\*.so;Libs\**\*.dylib" />
     </ItemGroup>
     <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(OutputPath)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
-  <!-- Also copy for publish -->
   <Target Name="CopyAllFilesOnPublish" BeforeTargets="Publish">
     <ItemGroup>
-      <!-- Include managed and native libraries but skip docs and packages -->
       <LibFiles Include="Libs\**\*.dll;Libs\**\*.so;Libs\**\*.dylib" />
     </ItemGroup>
     <Copy SourceFiles="@(LibFiles)" DestinationFiles="@(LibFiles->'$(PublishDir)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
-  <!-- Remove documentation and package files from build output -->
   <Target Name="RemoveNonRuntimeFiles" AfterTargets="Build">
     <ItemGroup>
       <UnneededFiles Include="$(OutputPath)\*.xml;$(OutputPath)\*.pdb;$(OutputPath)\*.nupkg" />
@@ -59,12 +64,10 @@
     <Delete Files="@(UnneededFiles)" />
   </Target>
 
-  <!-- Remove documentation and package files from publish output -->
   <Target Name="RemoveNonRuntimeFilesOnPublish" AfterTargets="Publish">
     <ItemGroup>
       <UnneededFiles Include="$(PublishDir)\*.xml;$(PublishDir)\*.pdb;$(PublishDir)\*.nupkg" />
     </ItemGroup>
     <Delete Files="@(UnneededFiles)" />
   </Target>
-
 </Project>

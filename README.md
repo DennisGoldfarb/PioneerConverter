@@ -20,7 +20,7 @@ There are three ways to get **PioneerConverter**:
 
 ## Usage
 
-Provide a single `.raw` file or a directory containing them. Converted Arrow tables are written to `arrow_out` inside the input directory.
+Provide a single `.raw` file or a directory containing them. By default, converted Arrow tables are written to `arrow_out` inside the input directory.
 
 ```bash
 # convert a single file
@@ -28,13 +28,25 @@ PioneerConverter path/to/file.raw
 
 # convert a directory with options
 PioneerConverter path/to/dir -b 5000 -n 4
+
+# convert and write output to a custom directory
+PioneerConverter path/to/dir -o path/to/output
+
+# incremental conversion: only process new .raw files
+PioneerConverter path/to/dir --skip-existing
+
+# print converter version
+PioneerConverter --version
 ```
 
 Options
 - `-b, --batch-size`  number of scans per batch (default: 10000)
+- `-o, --output-dir` output directory for `.arrow` files (default: `<input_dir>/arrow_out`)
+- `--skip-existing` skip files whose existing `.arrow` output appears complete
 - `-n, --concurrent-files` number of files to convert at the same time (default: 2)
-- `-s, --threads-per-file` scan extraction threads used for each file (default: 3)
+- `-t, --threads-per-file` scan extraction threads used for each file (default: 3)
 - `--scan-chunk-size` scan chunk size when using scan threads (default: 128)
+- `--version` show program version
 - `-h, --help`        show help
 
 ## Build from source
@@ -50,6 +62,22 @@ Options
    chmod +x build.sh   # optional, only if you're getting permission error
    ./build.sh          # or ./build.sh macos|linux|windows
    ```
+
+## Project layout
+
+- `PioneerConverter.csproj` - CLI entrypoint and composition root
+- `PioneerConverter.Core.csproj` - argument-independent application orchestration and planning
+- `PioneerConverter.Infrastructure.Thermo.csproj` - Thermo RawFileReader + Arrow conversion pipeline
+- `src/Cli` - command-line parsing/help/version and `Main`
+- `src/Application` - conversion planning and run orchestration
+- `src/Infrastructure/Thermo` - scan extraction, schema, batch writing, output completeness checks
+- `tests/PioneerConverter.UnitTests` - parser/planning/helper unit tests
+
+Run unit tests:
+
+```bash
+dotnet test PioneerConverter.sln
+```
 
 ## CI validation
 
