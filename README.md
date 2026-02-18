@@ -63,6 +63,22 @@ Options
    ./build.sh          # or ./build.sh macos|linux|windows
    ```
 
+## Project layout
+
+- `PioneerConverter.csproj` - CLI entrypoint and composition root
+- `PioneerConverter.Core.csproj` - argument-independent application orchestration and planning
+- `PioneerConverter.Infrastructure.Thermo.csproj` - Thermo RawFileReader + Arrow conversion pipeline
+- `src/Cli` - command-line parsing/help/version and `Main`
+- `src/Application` - conversion planning and run orchestration
+- `src/Infrastructure/Thermo` - scan extraction, schema, batch writing, output completeness checks
+- `tests/PioneerConverter.UnitTests` - parser/planning/helper unit tests
+
+Run unit tests:
+
+```bash
+dotnet test PioneerConverter.sln
+```
+
 ## CI validation
 
 GitHub Actions validates published binaries in `validate-binaries.yml` across:
