@@ -31,11 +31,15 @@ PioneerConverter path/to/dir -b 5000 -n 4
 
 # convert and write output to a custom directory
 PioneerConverter path/to/dir -o path/to/output
+
+# incremental conversion: only process new .raw files
+PioneerConverter path/to/dir --skip-existing
 ```
 
 Options
 - `-b, --batch-size`  number of scans per batch (default: 10000)
 - `-o, --output-dir` output directory for `.arrow` files (default: `<input_dir>/arrow_out`)
+- `--skip-existing` skip files whose existing `.arrow` output appears complete
 - `-n, --concurrent-files` number of files to convert at the same time (default: 2)
 - `-t, --threads-per-file` scan extraction threads used for each file (default: 3)
 - `--scan-chunk-size` scan chunk size when using scan threads (default: 128)

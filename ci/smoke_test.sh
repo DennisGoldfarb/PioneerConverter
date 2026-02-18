@@ -39,4 +39,27 @@ if [[ ! -s "${OUTPUT_FILE}" ]]; then
     exit 1
 fi
 
+COMPLETE_HASH="$(shasum -a 256 "${OUTPUT_FILE}" | awk '{print $1}')"
+
+echo "Running skip-existing smoke check for complete output"
+"${EXECUTABLE}" "${TMP_FIXTURE}" -b 50 -n 1 -o "${OUTPUT_DIR}" --skip-existing
+
+AFTER_COMPLETE_SKIP_HASH="$(shasum -a 256 "${OUTPUT_FILE}" | awk '{print $1}')"
+if [[ "${AFTER_COMPLETE_SKIP_HASH}" != "${COMPLETE_HASH}" ]]; then
+    echo "Expected output to remain unchanged with --skip-existing: ${OUTPUT_FILE}" >&2
+    exit 1
+fi
+
+printf "skip-existing-sentinel" > "${OUTPUT_FILE}"
+SENTINEL_HASH="$(shasum -a 256 "${OUTPUT_FILE}" | awk '{print $1}')"
+
+echo "Running skip-existing smoke check for incomplete output"
+"${EXECUTABLE}" "${TMP_FIXTURE}" -b 50 -n 1 -o "${OUTPUT_DIR}" --skip-existing
+
+AFTER_RECONVERT_HASH="$(shasum -a 256 "${OUTPUT_FILE}" | awk '{print $1}')"
+if [[ "${AFTER_RECONVERT_HASH}" == "${SENTINEL_HASH}" ]]; then
+    echo "Expected incomplete output to be reconverted with --skip-existing: ${OUTPUT_FILE}" >&2
+    exit 1
+fi
+
 echo "Smoke test passed"

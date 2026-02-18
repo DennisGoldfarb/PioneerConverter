@@ -24,6 +24,7 @@ public class Options
 {
     public string RawPath { get; set; } = string.Empty;
     public string OutputDir { get; set; } = string.Empty;
+    public bool SkipExisting { get; set; } = false;
     public int BatchSize { get; set; } = 10000;
     public int ConcurrentFiles { get; set; } = 2;
     public int ThreadsPerFile { get; set; } = 3;
@@ -58,6 +59,9 @@ public class Options
                     {
                         options.OutputDir = args[++i];
                     }
+                    break;
+                case "--skip-existing":
+                    options.SkipExisting = true;
                     break;
                 case "-n":
                 case "--concurrent-files":
@@ -99,6 +103,7 @@ public class Options
         Console.WriteLine("Options:");
         Console.WriteLine("  -b, --batch-size <size>    Process this many scans in each batch (default: 10000)");
         Console.WriteLine("  -o, --output-dir <path>    Output directory for .arrow files (default: <input_dir>/arrow_out)");
+        Console.WriteLine("      --skip-existing        Skip conversion when existing output appears complete");
         Console.WriteLine("  -n, --concurrent-files <n> Number of files to convert at the same time (default: 2)");
         Console.WriteLine("  -t, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
         Console.WriteLine("      --scan-chunk-size <n>  Scan chunk size for scan-thread mode (default: 128)");
@@ -109,6 +114,7 @@ public class Options
 internal static class Program
 {
     private const string HcdEnergyTrailerLabel = "HCD Energy V:";
+    private const string ScanNumberColumnName = "scanNumber";
 
     public static void Main(string[] args)
     {
@@ -147,7 +153,35 @@ internal static class Program
         }
 
         string[] output_paths = getOutputPaths(output_dir, file_paths);
+        List<int> filesToConvert = new List<int>(file_paths.Length);
+        int skippedCompleteFiles = 0;
+        int reconvertedIncompleteFiles = 0;
+        int missingOutputFiles = 0;
+        for (int i = 0; i < file_paths.Length; i++)
+        {
+            if (!options.SkipExisting)
+            {
+                filesToConvert.Add(i);
+                continue;
+            }
 
+            if (!File.Exists(output_paths[i]))
+            {
+                missingOutputFiles++;
+                filesToConvert.Add(i);
+                continue;
+            }
+
+            if (HasCompleteExistingOutput(file_paths[i], output_paths[i]))
+            {
+                skippedCompleteFiles++;
+                continue;
+            }
+
+            reconvertedIncompleteFiles++;
+            filesToConvert.Add(i);
+        }
+	
         ParallelOptions parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = options.ConcurrentFiles
@@ -158,8 +192,24 @@ internal static class Program
         Console.WriteLine($"scanChunkSize: {options.ScanChunkSize}");
         Console.WriteLine($"batchSize: {options.BatchSize}");
         Console.WriteLine($"outputDir: {output_dir}");
+        Console.WriteLine($"skipExisting: {options.SkipExisting}");
+        Console.WriteLine($"filesToConvert: {filesToConvert.Count}");
+        if (options.SkipExisting)
+        {
+            Console.WriteLine($"skippedCompleteFiles: {skippedCompleteFiles}");
+            Console.WriteLine($"reconvertedIncompleteFiles: {reconvertedIncompleteFiles}");
+            Console.WriteLine($"missingOutputFiles: {missingOutputFiles}");
+        }
 
-        Parallel.ForEach(Enumerable.Range(0, file_paths.Length), parallelOptions, fileIndex =>
+        if (filesToConvert.Count == 0)
+        {
+            totalExecutionWatch.Stop();
+            Console.WriteLine("No files to convert.");
+            Console.WriteLine("Total conversion time: {0}", FormatDuration(totalExecutionWatch.Elapsed));
+            return;
+        }
+
+        Parallel.ForEach(filesToConvert, parallelOptions, fileIndex =>
         {
             ProcessFile(file_paths[fileIndex], output_paths[fileIndex], options.BatchSize, options.ThreadsPerFile, options.ScanChunkSize);
         });
@@ -215,6 +265,84 @@ internal static class Program
         return output_dir;
     }
 
+    private static bool HasCompleteExistingOutput(string inputFile, string outputFile)
+    {
+        try
+        {
+            int rawLastScan = GetRawLastScanNumber(inputFile);
+            int? outputLastScan = GetOutputLastScanNumber(outputFile);
+            return outputLastScan.HasValue && outputLastScan.Value == rawLastScan;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static int GetRawLastScanNumber(string inputFile)
+    {
+        using var rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+        if (!rawFile.IsOpen || rawFile.IsError)
+        {
+            throw new InvalidOperationException($"Unable to read RAW file: {inputFile}");
+        }
+
+        rawFile.SelectInstrument(Device.MS, 1);
+        return rawFile.RunHeaderEx.LastSpectrum;
+    }
+
+    private static int? GetOutputLastScanNumber(string outputFile)
+    {
+        using var fileStream = new FileStream(outputFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var reader = new ArrowFileReader(fileStream);
+
+        int? lastScanNumber = null;
+        int scanNumberFieldIndex = -1;
+        while (reader.ReadNextRecordBatch() is RecordBatch batch)
+        {
+            using (batch)
+            {
+                if (batch.Length == 0)
+                {
+                    continue;
+                }
+
+                if (scanNumberFieldIndex < 0)
+                {
+                    for (int i = 0; i < batch.Schema.FieldsList.Count; i++)
+                    {
+                        if (string.Equals(batch.Schema.FieldsList[i].Name, ScanNumberColumnName, StringComparison.Ordinal))
+                        {
+                            scanNumberFieldIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (scanNumberFieldIndex < 0)
+                    {
+                        throw new InvalidDataException($"Missing required column '{ScanNumberColumnName}' in output file: {outputFile}");
+                    }
+                }
+
+                if (batch.Column(scanNumberFieldIndex) is not Int32Array scanNumbers)
+                {
+                    throw new InvalidDataException($"Column '{ScanNumberColumnName}' is not Int32 in output file: {outputFile}");
+                }
+
+                int lastIndex = checked((int)batch.Length - 1);
+                int? batchLastScanNumber = scanNumbers.GetValue(lastIndex);
+                if (!batchLastScanNumber.HasValue)
+                {
+                    throw new InvalidDataException($"Column '{ScanNumberColumnName}' has null values in output file: {outputFile}");
+                }
+
+                lastScanNumber = batchLastScanNumber.Value;
+            }
+        }
+
+        return lastScanNumber;
+    }
+	
     public static string[] getOutputPaths(string output_dir, string[] file_paths)
     {
         //Make output paths by altering the file extension and directory 
