@@ -53,6 +53,12 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Force authenticated GitHub git URLs
+        run: |
+          git config --global --unset-all url."https://github.com/".insteadOf || true
+          git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
+        shell: bash
+
       - name: Publish target binary
         run: |
           VERSION="${{ inputs.version }}"
