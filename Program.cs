@@ -4,6 +4,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 
 using ThermoFisher.CommonCore.BackgroundSubtraction;
@@ -20,27 +21,60 @@ using Apache.Arrow.Memory;
 using Apache.Arrow.Types;
 
 // Then class declarations
+internal static class AppMetadata
+{
+    public const string AppName = "PioneerConverter";
+    private const string DefaultVersion = "0.0.0-dev";
+    private static readonly Lazy<string> VersionProvider = new Lazy<string>(ResolveVersion);
+
+    public static string Version => VersionProvider.Value;
+
+    private static string ResolveVersion()
+    {
+        Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        string? informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
+
+        if (!string.IsNullOrWhiteSpace(informationalVersion))
+        {
+            return NormalizeVersion(informationalVersion);
+        }
+
+        string? assemblyVersion = assembly.GetName().Version?.ToString();
+        return string.IsNullOrWhiteSpace(assemblyVersion) ? DefaultVersion : NormalizeVersion(assemblyVersion);
+    }
+
+    private static string NormalizeVersion(string value)
+    {
+        int metadataSeparatorIndex = value.IndexOf('+');
+        return metadataSeparatorIndex >= 0 ? value.Substring(0, metadataSeparatorIndex) : value;
+    }
+}
+
 public class Options
 {
     public string RawPath { get; set; } = string.Empty;
+    public string OutputDir { get; set; } = string.Empty;
+    public bool SkipExisting { get; set; } = false;
+    public bool ShouldShowHelp { get; set; } = false;
+    public bool ShouldShowVersion { get; set; } = false;
     public int BatchSize { get; set; } = 10000;
     public int ConcurrentFiles { get; set; } = 2;
     public int ThreadsPerFile { get; set; } = 3;
     public int ScanChunkSize { get; set; } = 128;
-
+	
     public static Options ParseArguments(string[] args)
     {
         var options = new Options();
         
         if (args.Length == 0)
         {
-            ShowHelp();
+            options.ShouldShowHelp = true;
             return options;
         }
 
-        options.RawPath = args[0];
-
-        for (int i = 1; i < args.Length; i++)
+        for (int i = 0; i < args.Length; i++)
         {
             switch (args[i])
             {
@@ -50,6 +84,28 @@ public class Options
                     {
                         options.BatchSize = batchSize;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+                    break;
+                case "-o":
+                case "--output-dir":
+                    if (i + 1 < args.Length)
+                    {
+                        options.OutputDir = args[++i];
+                    }
+                    else
+                    {
+                        Console.WriteLine("Missing value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+                    break;
+                case "--skip-existing":
+                    options.SkipExisting = true;
                     break;
                 case "-n":
                 case "--concurrent-files":
@@ -57,12 +113,24 @@ public class Options
                     {
                         options.ConcurrentFiles = concurrentFiles;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
                     break;
-                case "-s":
+                case "-t":
                 case "--threads-per-file":
                     if (i + 1 < args.Length && int.TryParse(args[++i], out int threadsPerFile))
                     {
                         options.ThreadsPerFile = threadsPerFile;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
                     }
                     break;
                 case "--scan-chunk-size":
@@ -70,29 +138,62 @@ public class Options
                     {
                         options.ScanChunkSize = scanChunkSize;
                     }
+                    else
+                    {
+                        Console.WriteLine("Invalid value for {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+                    break;
+                case "--version":
+                    options.ShouldShowVersion = true;
                     break;
                 case "-h":
                 case "--help":
-                    ShowHelp();
-                    return options;
+                    options.ShouldShowHelp = true;
+                    break;
+                default:
+                    if (args[i].StartsWith("-", StringComparison.Ordinal))
+                    {
+                        Console.WriteLine("Unknown option: {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+
+                    if (string.IsNullOrEmpty(options.RawPath))
+                    {
+                        options.RawPath = args[i];
+                    }
+                    else
+                    {
+                        Console.WriteLine("Unexpected argument: {0}", args[i]);
+                        options.ShouldShowHelp = true;
+                        return options;
+                    }
+                    break;
             }
         }
-
+	
         return options;
     }
-
-    private static void ShowHelp()
+	
+    public static void ShowHelp()
     {
-        Console.WriteLine("Usage: PioneerConverter RAW_PATH [options]");
+        Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+        Console.WriteLine();
+        Console.WriteLine($"Usage: {AppMetadata.AppName} RAW_PATH [options]");
         Console.WriteLine();
         Console.WriteLine("Arguments:");
         Console.WriteLine("  RAW_PATH                   Path to .raw file or directory containing .raw files");
         Console.WriteLine();
         Console.WriteLine("Options:");
         Console.WriteLine("  -b, --batch-size <size>    Process this many scans in each batch (default: 10000)");
+        Console.WriteLine("  -o, --output-dir <path>    Output directory for .arrow files (default: <input_dir>/arrow_out)");
+        Console.WriteLine("      --skip-existing        Skip conversion when existing output appears complete");
         Console.WriteLine("  -n, --concurrent-files <n> Number of files to convert at the same time (default: 2)");
-        Console.WriteLine("  -s, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
+        Console.WriteLine("  -t, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
         Console.WriteLine("      --scan-chunk-size <n>  Scan chunk size for scan-thread mode (default: 128)");
+        Console.WriteLine("      --version              Show version information");
         Console.WriteLine("  -h, --help                 Show help information");
     }
 }
@@ -100,13 +201,28 @@ public class Options
 internal static class Program
 {
     private const string HcdEnergyTrailerLabel = "HCD Energy V:";
+    private const string ScanNumberColumnName = "scanNumber";
 
     public static void Main(string[] args)
     {
         var options = Options.ParseArguments(args);
 
+        if (options.ShouldShowVersion)
+        {
+            Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+            return;
+        }
+
+        if (options.ShouldShowHelp)
+        {
+            Options.ShowHelp();
+            return;
+        }
+	
         if (string.IsNullOrEmpty(options.RawPath))
         {
+            Console.WriteLine("Missing required RAW_PATH argument.");
+            Options.ShowHelp();
             return;
         }
 
@@ -114,37 +230,111 @@ internal static class Program
         options.ConcurrentFiles = Math.Max(1, options.ConcurrentFiles);
         options.ThreadsPerFile = Math.Max(1, options.ThreadsPerFile);
         options.ScanChunkSize = Math.Max(1, options.ScanChunkSize);
-
+	
         var totalExecutionWatch = Stopwatch.StartNew();
 
-        string[] file_paths = GetFilePaths(options.RawPath);
-        if (file_paths.Length == 0)
+        bool rawPathIsFile = File.Exists(options.RawPath);
+        bool rawPathIsDirectory = Directory.Exists(options.RawPath);
+        if (!rawPathIsFile && !rawPathIsDirectory)
         {
-            Console.WriteLine("No .raw files found to process");
+            Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+            Console.WriteLine("File or Directory does not exist: {0}", options.RawPath);
             return;
         }
 
-        string? input_dir = Path.GetDirectoryName(file_paths[0]);
-        if (input_dir == null)
-        {   
-            Console.WriteLine("Invalid input directory");
-            return; 
+        string inputMode = rawPathIsDirectory ? "directory" : "file";
+        string input_dir;
+        if (rawPathIsDirectory)
+        {
+            input_dir = Path.GetFullPath(options.RawPath);
+        }
+        else
+        {
+            string inputFilePath = Path.GetFullPath(options.RawPath);
+            string? inputFileDirectory = Path.GetDirectoryName(inputFilePath);
+            if (inputFileDirectory == null)
+            {
+                Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+                Console.WriteLine("Invalid input directory");
+                return;
+            }
+
+            input_dir = inputFileDirectory;
         }
 
-        string output_dir = buildOutputDir(input_dir);
-        string[] output_paths = getOutputPaths(output_dir, file_paths);
+        string[] file_paths = GetFilePaths(options.RawPath);
+        string output_dir = buildOutputDir(input_dir, options.OutputDir);
+        if (string.IsNullOrEmpty(output_dir))
+        {
+            return;
+        }
 
+        string[] output_paths = getOutputPaths(output_dir, file_paths);
+        List<int> filesToConvert = new List<int>(file_paths.Length);
+        int skippedCompleteFiles = 0;
+        int reconvertedIncompleteFiles = 0;
+        int missingOutputFiles = 0;
+        for (int i = 0; i < file_paths.Length; i++)
+        {
+            if (!options.SkipExisting)
+            {
+                filesToConvert.Add(i);
+                continue;
+            }
+
+            if (!File.Exists(output_paths[i]))
+            {
+                missingOutputFiles++;
+                filesToConvert.Add(i);
+                continue;
+            }
+
+            if (HasCompleteExistingOutput(file_paths[i], output_paths[i]))
+            {
+                skippedCompleteFiles++;
+                continue;
+            }
+
+            reconvertedIncompleteFiles++;
+            filesToConvert.Add(i);
+        }
+	
         ParallelOptions parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = options.ConcurrentFiles
         };
 
-        Console.WriteLine($"concurrentFiles: {options.ConcurrentFiles}");
-        Console.WriteLine($"threadsPerFile: {options.ThreadsPerFile}");
-        Console.WriteLine($"scanChunkSize: {options.ScanChunkSize}");
-        Console.WriteLine($"batchSize: {options.BatchSize}");
+        Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
+        Console.WriteLine("==================================================");
+        Console.WriteLine($"Config: concurrent-files={options.ConcurrentFiles}  threads-per-file={options.ThreadsPerFile}  scan-chunk-size={options.ScanChunkSize}  batch-size={options.BatchSize}");
+        Console.WriteLine($"Config: output={output_dir}");
+        Console.WriteLine($"Config: skip-existing={options.SkipExisting.ToString().ToLowerInvariant()}");
+        Console.WriteLine();
+        Console.WriteLine($"Input : {inputMode} {options.RawPath}");
+        Console.WriteLine($"Queue : discovered={file_paths.Length}  convert={filesToConvert.Count}");
+        if (options.SkipExisting)
+        {
+            Console.WriteLine($"Queue : skipped-complete={skippedCompleteFiles}  reconvert-incomplete={reconvertedIncompleteFiles}  missing-output={missingOutputFiles}");
+        }
+        Console.WriteLine("==================================================");
 
-        Parallel.ForEach(Enumerable.Range(0, file_paths.Length), parallelOptions, fileIndex =>
+        if (file_paths.Length == 0)
+        {
+            totalExecutionWatch.Stop();
+            Console.WriteLine("No .raw files found to process");
+            Console.WriteLine("Total conversion time: {0}", FormatDuration(totalExecutionWatch.Elapsed));
+            return;
+        }
+
+        if (filesToConvert.Count == 0)
+        {
+            totalExecutionWatch.Stop();
+            Console.WriteLine("No files to convert.");
+            Console.WriteLine("Total conversion time: {0}", FormatDuration(totalExecutionWatch.Elapsed));
+            return;
+        }
+
+        Parallel.ForEach(filesToConvert, parallelOptions, fileIndex =>
         {
             ProcessFile(file_paths[fileIndex], output_paths[fileIndex], options.BatchSize, options.ThreadsPerFile, options.ScanChunkSize);
         });
@@ -160,28 +350,121 @@ internal static class Program
 
         if (File.Exists(raw_path)) //Individual .raw file 
         {
-            Console.WriteLine("Converting: {0}", Path.GetFileNameWithoutExtension(raw_path));
-            file_paths = new string[] { raw_path };
+            file_paths = new string[] { Path.GetFullPath(raw_path) };
         } else if (Directory.Exists(raw_path)) //All .raw files in a directory
         {   
-            Console.WriteLine("Reading all .raw files from the directory: {0}", raw_path);
-            string directory_path = raw_path;
+            string directory_path = Path.GetFullPath(raw_path);
             file_paths = Directory.GetFiles(directory_path, "*.raw", SearchOption.TopDirectoryOnly);
         } else
         {
-            Console.WriteLine("File or Directory does not exist: {0}", raw_path);
             file_paths = new string[0];
         }
         return file_paths;
     }
 
-    public static string buildOutputDir(string input_dir)
+    public static string buildOutputDir(string input_dir, string requestedOutputDir)
     {
-        string output_dir = Path.Combine(input_dir, "arrow_out");
-        Directory.CreateDirectory(output_dir);
+        string output_dir = string.IsNullOrWhiteSpace(requestedOutputDir)
+            ? Path.Combine(input_dir, "arrow_out")
+            : Path.GetFullPath(requestedOutputDir);
+
+        if (File.Exists(output_dir))
+        {
+            Console.WriteLine("Output path points to an existing file: {0}", output_dir);
+            return string.Empty;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(output_dir);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Could not create output directory '{0}': {1}", output_dir, ex.Message);
+            return string.Empty;
+        }
+
         return output_dir;
     }
 
+    private static bool HasCompleteExistingOutput(string inputFile, string outputFile)
+    {
+        try
+        {
+            int rawLastScan = GetRawLastScanNumber(inputFile);
+            int? outputLastScan = GetOutputLastScanNumber(outputFile);
+            return outputLastScan.HasValue && outputLastScan.Value == rawLastScan;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static int GetRawLastScanNumber(string inputFile)
+    {
+        using var rawFile = RawFileReaderAdapter.FileFactory(inputFile);
+        if (!rawFile.IsOpen || rawFile.IsError)
+        {
+            throw new InvalidOperationException($"Unable to read RAW file: {inputFile}");
+        }
+
+        rawFile.SelectInstrument(Device.MS, 1);
+        return rawFile.RunHeaderEx.LastSpectrum;
+    }
+
+    private static int? GetOutputLastScanNumber(string outputFile)
+    {
+        using var fileStream = new FileStream(outputFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var reader = new ArrowFileReader(fileStream);
+
+        int? lastScanNumber = null;
+        int scanNumberFieldIndex = -1;
+        while (reader.ReadNextRecordBatch() is RecordBatch batch)
+        {
+            using (batch)
+            {
+                if (batch.Length == 0)
+                {
+                    continue;
+                }
+
+                if (scanNumberFieldIndex < 0)
+                {
+                    for (int i = 0; i < batch.Schema.FieldsList.Count; i++)
+                    {
+                        if (string.Equals(batch.Schema.FieldsList[i].Name, ScanNumberColumnName, StringComparison.Ordinal))
+                        {
+                            scanNumberFieldIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (scanNumberFieldIndex < 0)
+                    {
+                        throw new InvalidDataException($"Missing required column '{ScanNumberColumnName}' in output file: {outputFile}");
+                    }
+                }
+
+                if (batch.Column(scanNumberFieldIndex) is not Int32Array scanNumbers)
+                {
+                    throw new InvalidDataException($"Column '{ScanNumberColumnName}' is not Int32 in output file: {outputFile}");
+                }
+
+                int lastIndex = checked((int)batch.Length - 1);
+                int? batchLastScanNumber = scanNumbers.GetValue(lastIndex);
+                if (!batchLastScanNumber.HasValue)
+                {
+                    throw new InvalidDataException($"Column '{ScanNumberColumnName}' has null values in output file: {outputFile}");
+                }
+
+                lastScanNumber = batchLastScanNumber.Value;
+            }
+        }
+
+        return lastScanNumber;
+    }
+	
     public static string[] getOutputPaths(string output_dir, string[] file_paths)
     {
         //Make output paths by altering the file extension and directory 
