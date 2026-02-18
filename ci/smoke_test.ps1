@@ -36,12 +36,13 @@ try {
     Copy-Item -Path $FixturePath -Destination $tmpFixture
 
     Write-Host "Running conversion smoke test"
-    & $exePath $tmpFixture -b 50 -n 1
+    $outputDir = Join-Path $tmpDir "custom_out"
+    & $exePath $tmpFixture -b 50 -n 1 -o $outputDir
     if ($LASTEXITCODE -ne 0) {
         throw "Conversion smoke test failed with exit code $LASTEXITCODE"
     }
 
-    $outputFile = Join-Path $tmpDir "arrow_out/smoke.arrow"
+    $outputFile = Join-Path $outputDir "smoke.arrow"
     if (!(Test-Path $outputFile)) {
         throw "Expected output file missing: $outputFile"
     }

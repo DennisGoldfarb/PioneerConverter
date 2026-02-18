@@ -23,6 +23,7 @@ using Apache.Arrow.Types;
 public class Options
 {
     public string RawPath { get; set; } = string.Empty;
+    public string OutputDir { get; set; } = string.Empty;
     public int BatchSize { get; set; } = 10000;
     public int ConcurrentFiles { get; set; } = 2;
     public int ThreadsPerFile { get; set; } = 3;
@@ -49,6 +50,13 @@ public class Options
                     if (i + 1 < args.Length && int.TryParse(args[++i], out int batchSize))
                     {
                         options.BatchSize = batchSize;
+                    }
+                    break;
+                case "-o":
+                case "--output-dir":
+                    if (i + 1 < args.Length)
+                    {
+                        options.OutputDir = args[++i];
                     }
                     break;
                 case "-n":
@@ -90,6 +98,7 @@ public class Options
         Console.WriteLine();
         Console.WriteLine("Options:");
         Console.WriteLine("  -b, --batch-size <size>    Process this many scans in each batch (default: 10000)");
+        Console.WriteLine("  -o, --output-dir <path>    Output directory for .arrow files (default: <input_dir>/arrow_out)");
         Console.WriteLine("  -n, --concurrent-files <n> Number of files to convert at the same time (default: 2)");
         Console.WriteLine("  -t, --threads-per-file <n> Scan extraction threads used for each file (default: 3)");
         Console.WriteLine("      --scan-chunk-size <n>  Scan chunk size for scan-thread mode (default: 128)");
@@ -131,7 +140,12 @@ internal static class Program
             return; 
         }
 
-        string output_dir = buildOutputDir(input_dir);
+        string output_dir = buildOutputDir(input_dir, options.OutputDir);
+        if (string.IsNullOrEmpty(output_dir))
+        {
+            return;
+        }
+
         string[] output_paths = getOutputPaths(output_dir, file_paths);
 
         ParallelOptions parallelOptions = new ParallelOptions
@@ -143,6 +157,7 @@ internal static class Program
         Console.WriteLine($"threadsPerFile: {options.ThreadsPerFile}");
         Console.WriteLine($"scanChunkSize: {options.ScanChunkSize}");
         Console.WriteLine($"batchSize: {options.BatchSize}");
+        Console.WriteLine($"outputDir: {output_dir}");
 
         Parallel.ForEach(Enumerable.Range(0, file_paths.Length), parallelOptions, fileIndex =>
         {
@@ -175,10 +190,28 @@ internal static class Program
         return file_paths;
     }
 
-    public static string buildOutputDir(string input_dir)
+    public static string buildOutputDir(string input_dir, string requestedOutputDir)
     {
-        string output_dir = Path.Combine(input_dir, "arrow_out");
-        Directory.CreateDirectory(output_dir);
+        string output_dir = string.IsNullOrWhiteSpace(requestedOutputDir)
+            ? Path.Combine(input_dir, "arrow_out")
+            : Path.GetFullPath(requestedOutputDir);
+
+        if (File.Exists(output_dir))
+        {
+            Console.WriteLine("Output path points to an existing file: {0}", output_dir);
+            return string.Empty;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(output_dir);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Could not create output directory '{0}': {1}", output_dir, ex.Message);
+            return string.Empty;
+        }
+
         return output_dir;
     }
 

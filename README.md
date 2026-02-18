@@ -20,7 +20,7 @@ There are three ways to get **PioneerConverter**:
 
 ## Usage
 
-Provide a single `.raw` file or a directory containing them. Converted Arrow tables are written to `arrow_out` inside the input directory.
+Provide a single `.raw` file or a directory containing them. By default, converted Arrow tables are written to `arrow_out` inside the input directory.
 
 ```bash
 # convert a single file
@@ -28,10 +28,14 @@ PioneerConverter path/to/file.raw
 
 # convert a directory with options
 PioneerConverter path/to/dir -b 5000 -n 4
+
+# convert and write output to a custom directory
+PioneerConverter path/to/dir -o path/to/output
 ```
 
 Options
 - `-b, --batch-size`  number of scans per batch (default: 10000)
+- `-o, --output-dir` output directory for `.arrow` files (default: `<input_dir>/arrow_out`)
 - `-n, --concurrent-files` number of files to convert at the same time (default: 2)
 - `-t, --threads-per-file` scan extraction threads used for each file (default: 3)
 - `--scan-chunk-size` scan chunk size when using scan threads (default: 128)

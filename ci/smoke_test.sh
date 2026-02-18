@@ -30,9 +30,10 @@ TMP_FIXTURE="${TMP_DIR}/smoke.raw"
 cp "${FIXTURE_PATH}" "${TMP_FIXTURE}"
 
 echo "Running conversion smoke test"
-"${EXECUTABLE}" "${TMP_FIXTURE}" -b 50 -n 1
+OUTPUT_DIR="${TMP_DIR}/custom_out"
+"${EXECUTABLE}" "${TMP_FIXTURE}" -b 50 -n 1 -o "${OUTPUT_DIR}"
 
-OUTPUT_FILE="${TMP_DIR}/arrow_out/smoke.arrow"
+OUTPUT_FILE="${OUTPUT_DIR}/smoke.arrow"
 if [[ ! -s "${OUTPUT_FILE}" ]]; then
     echo "Expected output file missing or empty: ${OUTPUT_FILE}" >&2
     exit 1
