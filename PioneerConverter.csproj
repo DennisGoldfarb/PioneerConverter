@@ -35,6 +35,11 @@
     </Reference>
   </ItemGroup>
 
+  <!-- Prevent test sources (including generated obj files) from being compiled into the app -->
+  <ItemGroup>
+    <Compile Remove="tests\**\*.cs" />
+  </ItemGroup>
+
   <!-- Copy runtime libraries only -->
   <Target Name="CopyAllFiles" BeforeTargets="Build">
     <ItemGroup>
