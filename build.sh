@@ -26,8 +26,7 @@ build_macos() {
     print_step "Building for macOS ARM64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-arm64 \
-      -p:PublishSingleFile=true \
-      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishSingleFile=false \
       -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
@@ -39,8 +38,7 @@ build_macos() {
     print_step "Building for macOS x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-x64 \
-      -p:PublishSingleFile=true \
-      -p:IncludeNativeLibrariesForSelfExtract=true \
+      -p:PublishSingleFile=false \
       -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
@@ -49,12 +47,13 @@ build_macos() {
       --self-contained true \
       -o dist/PioneerConverter-osx-x64
 
-    chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
-    chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
     mkdir -p dist/PioneerConverter-osx-arm64/bin
     mkdir -p dist/PioneerConverter-osx-x64/bin
-    mv dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-arm64/bin/
-    mv dist/PioneerConverter-osx-x64/PioneerConverter dist/PioneerConverter-osx-x64/bin/
+    # For non-single-file macOS publishes, the runtime payload must live with the executable.
+    find dist/PioneerConverter-osx-arm64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec mv {} dist/PioneerConverter-osx-arm64/bin/ \;
+    find dist/PioneerConverter-osx-x64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec mv {} dist/PioneerConverter-osx-x64/bin/ \;
+    chmod +x dist/PioneerConverter-osx-arm64/bin/PioneerConverter
+    chmod +x dist/PioneerConverter-osx-x64/bin/PioneerConverter
     # Keep macOS release layout minimal: only bin/ and lib/
     find dist/PioneerConverter-osx-arm64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec rm -rf {} +
     find dist/PioneerConverter-osx-x64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec rm -rf {} +
