@@ -306,7 +306,7 @@ internal static class Program
 
         Console.WriteLine($"{AppMetadata.AppName} {AppMetadata.Version}");
         Console.WriteLine("==================================================");
-        Console.WriteLine($"Config: concurrent={options.ConcurrentFiles}  threads={options.ThreadsPerFile}  chunk={options.ScanChunkSize}  batch={options.BatchSize}");
+        Console.WriteLine($"Config: concurrent-files={options.ConcurrentFiles}  threads-per-file={options.ThreadsPerFile}  scan-chunk-size={options.ScanChunkSize}  batch-size={options.BatchSize}");
         Console.WriteLine($"Config: output={output_dir}");
         Console.WriteLine($"Config: skip-existing={options.SkipExisting.ToString().ToLowerInvariant()}");
         Console.WriteLine();
