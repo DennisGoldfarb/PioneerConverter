@@ -21,10 +21,13 @@ VERSION="$(echo "$VERSION" | tr -d '\n')"
 mkdir -p dist
 
 build_macos() {
+    rm -rf dist/PioneerConverter-osx-arm64 dist/PioneerConverter-osx-x64
+
     print_step "Building for macOS ARM64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-arm64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
       -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
@@ -36,7 +39,8 @@ build_macos() {
     print_step "Building for macOS x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r osx-x64 \
-      -p:PublishSingleFile=false \
+      -p:PublishSingleFile=true \
+      -p:IncludeNativeLibrariesForSelfExtract=true \
       -p:PublishReadyToRun=false \
       -p:PublishTrimmed=false \
       -p:DebugType=None \
@@ -47,9 +51,18 @@ build_macos() {
 
     chmod +x dist/PioneerConverter-osx-arm64/PioneerConverter
     chmod +x dist/PioneerConverter-osx-x64/PioneerConverter
+    mkdir -p dist/PioneerConverter-osx-arm64/bin
+    mkdir -p dist/PioneerConverter-osx-x64/bin
+    mv dist/PioneerConverter-osx-arm64/PioneerConverter dist/PioneerConverter-osx-arm64/bin/
+    mv dist/PioneerConverter-osx-x64/PioneerConverter dist/PioneerConverter-osx-x64/bin/
+    # Keep macOS release layout minimal: only bin/ and lib/
+    find dist/PioneerConverter-osx-arm64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec rm -rf {} +
+    find dist/PioneerConverter-osx-x64 -mindepth 1 -maxdepth 1 ! -name bin ! -name lib -exec rm -rf {} +
 }
 
 build_linux() {
+    rm -rf dist/PioneerConverter-linux-x64
+
     print_step "Building for Linux x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r linux-x64 \
@@ -69,6 +82,8 @@ build_linux() {
 }
 
 build_windows() {
+    rm -rf dist/PioneerConverter-win-x64
+
     print_step "Building for Windows x64"
     dotnet publish PioneerConverter.csproj -c Release \
       -r win-x64 \
@@ -121,12 +136,14 @@ for dir in "${BUILT[@]}"; do
         echo "Skipping zip for $dir"
         continue
     fi
+    archive="${dir}-${VERSION}.zip"
+    rm -f "$archive"
     if command -v zip >/dev/null 2>&1; then
-        zip -r "${dir}-${VERSION}.zip" "$dir"
+        zip -r "$archive" "$dir"
     elif command -v 7z >/dev/null 2>&1; then
-        7z a "${dir}-${VERSION}.zip" "$dir" >/dev/null
+        7z a "$archive" "$dir" >/dev/null
     elif command -v powershell.exe >/dev/null 2>&1; then
-        powershell.exe -Command "Compress-Archive -Path '$dir' -DestinationPath '${dir}-${VERSION}.zip'" >/dev/null
+        powershell.exe -Command "Compress-Archive -Path '$dir' -DestinationPath '$archive'" >/dev/null
     else
         echo "No zip utility found" >&2
         exit 1
